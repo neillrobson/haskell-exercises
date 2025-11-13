@@ -1,4 +1,4 @@
-data TisAnInteger
+newtype TisAnInteger
   = TisAn Integer
 
 instance Eq TisAnInteger where
@@ -35,3 +35,17 @@ instance (Eq a) => Eq (Which a) where
   ThisOne x == ThisOne x' = x == x'
   ThatOne x == ThatOne x' = x == x'
   _ == _ = False
+
+data Mood = Blah | Woot deriving (Eq, Show)
+
+settleDown x = if x == Woot then Blah else x
+
+type Subject = String
+
+type Verb = String
+
+type Object = String
+
+data Sentence = Sentence Subject Verb Object deriving (Eq, Show)
+
+s1 = Sentence "dogs" "drool"
