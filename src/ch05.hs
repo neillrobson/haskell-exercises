@@ -23,3 +23,18 @@ r (_ : xs) = xs
 
 co :: (b -> c) -> (a -> b) -> a -> c
 co f g x = f $ g x
+
+------------------------------------------------
+
+data Woot
+
+data Blah
+
+f :: Woot -> Blah
+f = undefined
+
+g :: (Blah, Woot) -> (Blah, Blah)
+g (b, w) = (b, f w)
+
+munge :: (x -> y) -> (y -> (w, z)) -> x -> w
+munge f g i = fst $ g $ f i
