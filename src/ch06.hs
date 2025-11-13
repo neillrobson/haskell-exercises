@@ -1,3 +1,5 @@
+import Data.List (sort)
+
 newtype TisAnInteger
   = TisAn Integer
 
@@ -49,3 +51,26 @@ type Object = String
 data Sentence = Sentence Subject Verb Object deriving (Eq, Show)
 
 s1 = Sentence "dogs" "drool"
+
+f :: (RealFrac a) => a
+f = 1.0
+
+freud :: Int -> Int
+freud x = x
+
+myX = 1 :: Int
+
+sigmund :: Int -> Int
+sigmund x = myX
+
+mySort :: [Char] -> [Char]
+mySort = sort
+
+jung :: [Char] -> Char
+jung xs = head $ mySort xs
+
+chk :: (Eq b) => (a -> b) -> a -> b -> Bool
+chk f a b = b == f a
+
+arith :: (Num b) => (a -> b) -> Integer -> a -> b
+arith f i a = fromInteger i + f a
