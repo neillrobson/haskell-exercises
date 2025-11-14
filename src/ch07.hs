@@ -29,15 +29,15 @@ oneIsTwo = flip dodgy 2
 -- Create the type declaration and implementation of a function that Shows an arbitrary number of arguments.
 
 class ShowArgsType t where
-  catArg :: (Show a) => a -> String -> t
+  catArg :: String -> t
 
 instance ShowArgsType String where
-  catArg :: (Show a) => a -> String -> String
-  catArg next acc = show next ++ acc
+  catArg :: String -> String
+  catArg = id
 
 instance (Show a, ShowArgsType r) => ShowArgsType (a -> r) where
-  catArg :: (Show i) => i -> String -> a -> r
-  catArg next acc a = catArg next $ acc ++ show a
+  catArg :: String -> a -> r
+  catArg acc next = catArg $ acc ++ show next
 
-showArgs :: (Show a, ShowArgsType r) => a -> r
-showArgs a = catArg a ""
+showArgs :: (ShowArgsType r) => r
+showArgs = catArg ""
