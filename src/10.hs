@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
+import Data.Maybe (fromJust)
+
 {-# HLINT ignore "Use or" #-}
 {-# HLINT ignore "Use concat" #-}
 {-# HLINT ignore "Use concatMap" #-}
@@ -66,3 +68,25 @@ myMinimumBy _ [x] = x
 myMinimumBy f (x : xs) =
   let acc = myMinimumBy f xs
    in if f x acc == LT then x else acc
+
+-- This one is technically accurate, but the order of execution is off
+-- since the head item is evaluated first.
+
+myMaximumFold :: (a -> a -> Ordering) -> [a] -> a
+myMaximumFold _ [] = undefined
+myMaximumFold f (x : xs) = foldr go x xs
+  where
+    go n m = if f n m == GT then n else m
+
+-- A sneaky trick: use a Maybe container
+
+myMaximumMaybe :: (a -> a -> Ordering) -> [a] -> a
+myMaximumMaybe f =
+  fromJust
+    . foldr
+      ( \x m ->
+          case m of
+            Nothing -> Just x
+            Just y -> if f x y == GT then Just x else Just y
+      )
+      Nothing
