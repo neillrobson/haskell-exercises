@@ -1,3 +1,6 @@
+import Data.Char (toUpper)
+import Data.List (intercalate, isSuffixOf)
+
 newtype Goats = Goats Int deriving (Eq, Show)
 
 class TooMany a where
@@ -22,3 +25,39 @@ instance TooMany (Int, Int) where
 instance (Num a, TooMany a) => TooMany (a, a) where
   tooMany :: (Num a, TooMany a) => (a, a) -> Bool
   tooMany (x, y) = tooMany x || tooMany y
+
+---------------------------------------------------
+
+isSubseqOf :: (Eq a) => [a] -> [a] -> Bool
+isSubseqOf [] _ = True
+isSubseqOf _ [] = False
+isSubseqOf xss@(x : xs) (y : ys)
+  | x == y = isSubseqOf xs ys
+  | otherwise = isSubseqOf xss ys
+
+withCapital :: String -> (String, String)
+withCapital "" = ("", "")
+withCapital w@(c : cs) = (w, toUpper c : cs)
+
+capitalizeWords :: String -> [(String, String)]
+capitalizeWords = map withCapital . words
+
+----------------------------------------------------
+
+capitalizeWord :: String -> String
+capitalizeWord "" = ""
+capitalizeWord (x : xs) = toUpper x : xs
+
+capitalizeNext :: String -> String -> String
+capitalizeNext word "" = word
+capitalizeNext word acc = if "." `isSuffixOf` word then word ++ capitalizeWord acc else word ++ acc
+
+wordsWhen :: (Char -> Bool) -> String -> [String]
+wordsWhen p s = case dropWhile p s of
+  "" -> []
+  s' -> w : wordsWhen p s''
+    where
+      (w, s'') = break p s'
+
+capitalizeParagraph :: String -> String
+capitalizeParagraph = intercalate ". " . map (capitalizeWord . unwords . words) . wordsWhen (== '.')
