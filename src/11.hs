@@ -1,5 +1,5 @@
 import Data.Char (toUpper)
-import Data.List (intercalate, isSuffixOf)
+import Data.List (intercalate, isPrefixOf, isSuffixOf)
 
 newtype Goats = Goats Int deriving (Eq, Show)
 
@@ -61,3 +61,9 @@ wordsWhen p s = case dropWhile p s of
 
 capitalizeParagraph :: String -> String
 capitalizeParagraph = intercalate ". " . map (capitalizeWord . unwords . words) . wordsWhen (== '.')
+
+splitSentence :: String -> [String]
+splitSentence = foldr (\c (a : as) -> if ". " `isPrefixOf` a then [c] : drop 2 a : as else (c : a) : as) [""]
+
+capitalizeParagraph' :: String -> String
+capitalizeParagraph' = intercalate ". " . map capitalizeWord . splitSentence
