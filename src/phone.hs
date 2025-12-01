@@ -1,4 +1,5 @@
 import Data.Char (toLower)
+import Data.List (maximumBy, nub)
 
 -- Valid buttons are 0 through 9, *, and #
 type Digit = Char
@@ -71,3 +72,24 @@ reverseTaps phone = foldr foldIntoEntry [] . phone
 
 cellPhonesDead :: DaPhone -> String -> Entry
 cellPhonesDead phone = concatMap (foldr foldIntoEntry [] . phone)
+
+fingerTaps :: Entry -> Presses
+fingerTaps = foldr (\(_, p) ps -> p + ps) 0
+
+frequencies :: (Eq a) => [a] -> [(a, Int)]
+frequencies s = nub [(element, count) | element <- s, let count = length $ filter (== element) s]
+
+mostPopular :: (Eq a) => [a] -> a
+mostPopular = fst . maximumBy (\(_, a) (_, b) -> compare a b) . frequencies
+
+mostPopularLetter :: String -> Char
+mostPopularLetter = mostPopular . filter (/= ' ')
+
+mostPopularCost :: [Int]
+mostPopularCost = map (fingerTaps . reverseTaps defaultPhone . mostPopularLetter) convo
+
+coolestLetter :: [String] -> Char
+coolestLetter = mostPopularLetter . concat
+
+coolestWord :: [String] -> String
+coolestWord = mostPopular . concatMap words
