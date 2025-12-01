@@ -21,11 +21,26 @@ defaultNumpad 't' = '8'
 defaultNumpad 'w' = '9'
 defaultNumpad _ = undefined
 
+defaultChars :: Digit -> Char
+defaultChars '2' = 'c'
+defaultChars '3' = 'f'
+defaultChars '4' = 'i'
+defaultChars '5' = 'l'
+defaultChars '6' = 'o'
+defaultChars '7' = 's'
+defaultChars '8' = 'v'
+defaultChars '9' = 'z'
+defaultChars '0' = ' '
+defaultChars _ = undefined
+
 defaultPhone :: DaPhone
 defaultPhone c
   | '.' == c = "#"
   | ',' == c = "##"
   | ' ' == c = "0"
+  | '0' == c = c : defaultPhone (defaultChars c)
+  | '1' == c = "1"
+  | '2' <= c, c <= '9' = c : defaultPhone (defaultChars c)
   | 'A' <= c, c <= 'Z' = '*' : defaultPhone (toLower c)
   | c `elem` "adgjmptw" = [defaultNumpad c]
   | otherwise = case defaultPhone $ pred c of
@@ -45,8 +60,14 @@ convo =
     "Just making sure rofl ur turn"
   ]
 
+foldIntoEntry :: Digit -> Entry -> Entry
+foldIntoEntry d [] = [(d, 1)]
+foldIntoEntry d ess@((e, i) : es)
+  | d == e = (e, i + 1) : es
+  | otherwise = (d, 1) : ess
+
 reverseTaps :: DaPhone -> Char -> Entry
-reverseTaps = undefined
+reverseTaps phone = foldr foldIntoEntry [] . phone
 
 cellPhonesDead :: DaPhone -> String -> Entry
-cellPhonesDead = undefined
+cellPhonesDead phone = concatMap (foldr foldIntoEntry [] . phone)
