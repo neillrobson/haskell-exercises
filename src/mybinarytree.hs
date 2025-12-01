@@ -31,3 +31,15 @@ postorder (Node left a right) = (postorder left ++ postorder right) ++ [a]
 foldTree :: (a -> b -> b) -> b -> BinaryTree a -> b
 foldTree _ b Leaf = b
 foldTree f b (Node left a right) = f a $ foldTree f (foldTree f b right) left
+
+unfold :: (a -> Maybe (a, b, a)) -> a -> BinaryTree b
+unfold f x = case f x of
+  Nothing -> Leaf
+  Just (l, n, r) -> Node (unfold f l) n (unfold f r)
+
+treeBuild :: Integer -> BinaryTree Integer
+treeBuild n = unfold go 0
+  where
+    go i
+      | i >= n = Nothing
+      | otherwise = Just (i + 1, i, i + 1)
