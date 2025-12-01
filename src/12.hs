@@ -1,5 +1,3 @@
-import Data.Maybe (isNothing)
-
 notThe :: String -> Maybe String
 notThe "the" = Nothing
 notThe s = Just s
@@ -49,3 +47,43 @@ integerToNat i
   where
     go 0 = Zero
     go j = Succ $ go $ j - 1
+
+------------------------------------------------------------------------
+
+isJust :: Maybe a -> Bool
+isJust (Just _) = True
+isJust _ = False
+
+isNothing :: Maybe a -> Bool
+isNothing Nothing = True
+isNothing _ = False
+
+mayybee :: b -> (a -> b) -> Maybe a -> b
+mayybee _ f (Just a) = f a
+mayybee b _ Nothing = b
+
+fromMaybe :: a -> Maybe a -> a
+fromMaybe _ (Just a) = a
+fromMaybe b Nothing = b
+
+listToMaybe :: [a] -> Maybe a
+listToMaybe [] = Nothing
+listToMaybe (a : _) = Just a
+
+maybeToList :: Maybe a -> [a]
+maybeToList Nothing = []
+maybeToList (Just a) = [a]
+
+catMaybes :: [Maybe a] -> [a]
+catMaybes [] = []
+catMaybes (Nothing : mas) = catMaybes mas
+catMaybes (Just a : mas) = a : catMaybes mas
+
+flipMaybe :: [Maybe a] -> Maybe [a]
+flipMaybe [] = Just []
+flipMaybe (Nothing : _) = Nothing
+flipMaybe (Just a : ma_s) = case m_as of
+  Nothing -> Nothing
+  Just as -> Just (a : as)
+  where
+    m_as = flipMaybe ma_s
