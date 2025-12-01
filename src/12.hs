@@ -87,3 +87,34 @@ flipMaybe (Just a : ma_s) = case m_as of
   Just as -> Just (a : as)
   where
     m_as = flipMaybe ma_s
+
+-----------------------------------------------------------
+
+lefts' :: [Either a b] -> [a]
+lefts' = foldr go []
+  where
+    go (Left a) as = a : as
+    go _ as = as
+
+rights' :: [Either a b] -> [b]
+rights' = foldr go []
+  where
+    go (Right b) bs = b : bs
+    go _ bs = bs
+
+partitionEithers' :: [Either a b] -> ([a], [b])
+partitionEithers' = foldr go ([], [])
+  where
+    go (Left a) (as, bs) = (a : as, bs)
+    go (Right b) (as, bs) = (as, b : bs)
+
+eitherMaybe' :: (b -> c) -> Either a b -> Maybe c
+eitherMaybe' _ (Left a) = Nothing
+eitherMaybe' f (Right b) = Just $ f b
+
+either' :: (a -> c) -> (b -> c) -> Either a b -> c
+either' f _ (Left a) = f a
+either' _ f (Right b) = f b
+
+eitherMaybe'' :: (b -> c) -> Either a b -> Maybe c
+eitherMaybe'' f = either' (const Nothing) (Just . f)
