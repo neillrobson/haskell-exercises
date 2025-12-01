@@ -33,3 +33,19 @@ mkWord' :: String -> Maybe Word'
 mkWord' s =
   let (v, c) = letterCounts s
    in if v > c then Nothing else Just $ Word' s
+
+-----------------------------------------------------------------------
+
+data Nat = Zero | Succ Nat deriving (Eq, Show)
+
+natToInteger :: Nat -> Integer
+natToInteger Zero = 0
+natToInteger (Succ n) = 1 + natToInteger n
+
+integerToNat :: Integer -> Maybe Nat
+integerToNat i
+  | i < 0 = Nothing
+  | otherwise = Just $ go i
+  where
+    go 0 = Zero
+    go j = Succ $ go $ j - 1
