@@ -22,3 +22,11 @@ type Cipher = String
 
 vigenere :: Keyword -> Message -> Cipher
 vigenere k = zipWith caesarChrWith (cycle k)
+
+main :: IO ()
+main = do
+  putStr "Enter keyword: "
+  kw <- getLine
+  putStr "Enter message: "
+  msg <- getLine
+  putStrLn $ "Cipher: " ++ vigenere kw msg
