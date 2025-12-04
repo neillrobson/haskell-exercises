@@ -1,6 +1,7 @@
 module Addition where
 
 import Test.Hspec
+import Test.QuickCheck
 
 dividedBy :: (Integral a) => a -> a -> (a, a)
 dividedBy num denom = go num denom 0
@@ -30,3 +31,6 @@ main = hspec $ do
       multiply 0 3 `shouldBe` (0 :: Integer)
     it "15 times 0 is 0" $ do
       multiply 15 0 `shouldBe` (0 :: Integer)
+  describe "Addition" $ do
+    it "x + 1 is always greater than x" $ do
+      property $ \x -> x + 1 > (x :: Int)
