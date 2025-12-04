@@ -34,3 +34,17 @@ main = hspec $ do
   describe "Addition" $ do
     it "x + 1 is always greater than x" $ do
       property $ \x -> x + 1 > (x :: Int)
+
+genTuple :: (Arbitrary a, Arbitrary b) => Gen (a, b)
+genTuple = do
+  a <- arbitrary
+  b <- arbitrary
+  return (a, b)
+
+-- Using QuickCheck in isolation
+
+prop_additionGreater :: Int -> Bool
+prop_additionGreater x = x + 1 > x
+
+runQc :: IO ()
+runQc = quickCheck prop_additionGreater
