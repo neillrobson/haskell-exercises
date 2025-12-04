@@ -14,4 +14,12 @@ mkPerson name age
   | otherwise = Left $ PersonInvalidUnknown $ "Name was: " ++ show name ++ " Age was: " ++ show age
 
 gimmePerson :: IO ()
-gimmePerson = undefined
+gimmePerson = do
+  putStr "Enter name: "
+  name <- getLine
+  putStr "Enter age: "
+  age :: Integer <- read <$> getLine
+  let person = mkPerson name age
+  case person of
+    Right p -> putStrLn $ "Yay! Successfully got a person: " ++ show p
+    Left i -> putStrLn $ "An error occurred: " ++ show i
