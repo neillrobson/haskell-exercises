@@ -1,3 +1,4 @@
+import Data.Char (toUpper)
 import Data.List (sort)
 import Test.QuickCheck (quickCheck)
 
@@ -63,3 +64,58 @@ qcMultiplication :: IO ()
 qcMultiplication = do
   quickCheck timesAInt
   quickCheck timesCInt
+
+--------------------------------------------------------
+
+roundTrip :: (Show a, Read a, Eq a) => a -> Bool
+roundTrip x = read (show x) == x
+
+roundTripDouble :: Double -> Bool
+roundTripDouble = roundTrip
+
+qcRoundTrip :: IO ()
+qcRoundTrip = quickCheck roundTripDouble
+
+--------------------------------------------------------
+-- Failures
+--------------------------------------------------------
+
+square :: (Num a) => a -> a
+square x = x * x
+
+squareIdentity :: (Floating a, Eq a) => a -> Bool
+squareIdentity x = x == (square . sqrt) x
+
+sqIdDouble :: Double -> Bool
+sqIdDouble = squareIdentity
+
+qcSqId :: IO ()
+qcSqId = quickCheck sqIdDouble
+
+--------------------------------------------------------
+-- Idempotence
+--------------------------------------------------------
+
+capitalizeWord :: String -> String
+capitalizeWord "" = ""
+capitalizeWord (x : xs) = toUpper x : xs
+
+twice :: (a -> a) -> a -> a
+twice fn = fn . fn
+
+fourTimes :: (a -> a) -> a -> a
+fourTimes = twice . twice
+
+f :: String -> Bool
+f x = capitalizeWord x == twice capitalizeWord x && capitalizeWord x == fourTimes capitalizeWord x
+
+f' :: (Ord a) => [a] -> Bool
+f' x = sort x == twice sort x && sort x == fourTimes sort x
+
+fpInt :: [Int] -> Bool
+fpInt = f'
+
+qcIdempotence :: IO ()
+qcIdempotence = do
+  quickCheck f
+  quickCheck fpInt
