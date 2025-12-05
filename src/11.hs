@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE InstanceSigs #-}
+
 import Data.Char (toUpper)
 import Data.List (intercalate, isPrefixOf, isSuffixOf)
 
