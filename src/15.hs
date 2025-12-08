@@ -3,6 +3,7 @@
 {-# HLINT ignore "Use <$>" #-}
 {-# HLINT ignore "Monoid law, left identity" #-}
 {-# HLINT ignore "Monoid law, right identity" #-}
+{-# HLINT ignore "Use tuple-section" #-}
 import Data.Monoid (Sum)
 import Test.QuickCheck (Arbitrary (arbitrary), CoArbitrary, frequency, oneof, quickCheck)
 
@@ -143,6 +144,43 @@ instance (Arbitrary a, Arbitrary b) => Arbitrary (Validation a b) where
     frequency [(1, return $ Failure a), (3, return $ Success b)]
 
 type ValidAssoc = Validation String Int -> Validation String Int -> Validation String Int -> Bool
+
+-------------------------------------------------------------------
+
+newtype Mem s a = Mem {runMem :: s -> (a, s)}
+
+instance (Semigroup a) => Semigroup (Mem s a) where
+  Mem f <> Mem g = Mem $ \s ->
+    let (ga, gs) = g s
+        (fa, fgs) = f gs
+     in (fa <> ga, fgs)
+
+instance (Monoid a) => Monoid (Mem s a) where
+  mempty = Mem $ \s -> (mempty, s)
+
+f :: Mem Int String
+f = Mem $ \s -> ("hi", s + 8)
+
+g :: Mem Int String
+g = Mem $ \s -> ("world", div s 2)
+
+h :: Mem Int String
+h = Mem $ \s -> ("!!", s - 4)
+
+testMem :: IO ()
+testMem = do
+  let rmzero = runMem mempty 0
+      rmleft = runMem (f <> mempty) 0
+      rmright = runMem (mempty <> f) 0
+  print rmleft
+  print rmright
+  print (rmzero :: (String, Int))
+  print $ rmleft == runMem f 0
+  print $ rmright == runMem f 0
+  print $ runMem (f <> g) 0
+  print $ runMem (g <> f) 0
+  print $ runMem (f <> (g <> h)) 0
+  print $ runMem ((f <> g) <> h) 0
 
 -------------------------------------------------------------------
 
