@@ -2,7 +2,7 @@
 
 {-# HLINT ignore "Use <$>" #-}
 import Data.Monoid (Sum)
-import Test.QuickCheck (Arbitrary (arbitrary), CoArbitrary, oneof, quickCheck)
+import Test.QuickCheck (Arbitrary (arbitrary), CoArbitrary, frequency, oneof, quickCheck)
 
 data Trivial = Trivial deriving (Eq, Show)
 
@@ -53,6 +53,7 @@ type OrAssoc = Or Int String -> Or Int String -> Or Int String -> Bool
 
 newtype Combine a b = Combine {unCombine :: a -> b}
 
+-- Just for the sake of quickcheck property testing
 instance Show (Combine a b) where
   show _ = "Combine"
 
@@ -69,9 +70,47 @@ type CombAssoc = Combine Int (Sum Int) -> Combine Int (Sum Int) -> Combine Int (
 
 -------------------------------------------------------------------
 
+newtype Comp a = Comp {unComp :: a -> a}
+
+-- Just for the sake of quickcheck property testing
+instance Show (Comp a) where
+  show _ = "Comp"
+
+instance (Semigroup a) => Semigroup (Comp a) where
+  (Comp f) <> (Comp g) = Comp $ f . g
+
+instance (CoArbitrary a, Arbitrary a) => Arbitrary (Comp a) where
+  arbitrary = Comp <$> arbitrary
+
+compSemigroupAssoc :: (Eq a, Semigroup a) => Comp a -> Comp a -> Comp a -> a -> Bool
+compSemigroupAssoc f g h a = unComp (f <> (g <> h)) a == unComp ((f <> g) <> h) a
+
+type CompAssoc = Comp String -> Comp String -> Comp String -> String -> Bool
+
+-------------------------------------------------------------------
+
+data Validation a b = Failure a | Success b deriving (Eq, Show)
+
+instance (Semigroup a) => Semigroup (Validation a b) where
+  s@(Success _) <> _ = s
+  _ <> s@(Success _) = s
+  (Failure a) <> (Failure b) = Failure $ a <> b
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Validation a b) where
+  arbitrary = do
+    a <- arbitrary
+    b <- arbitrary
+    frequency [(1, return $ Failure a), (3, return $ Success b)]
+
+type ValidAssoc = Validation String Int -> Validation String Int -> Validation String Int -> Bool
+
+-------------------------------------------------------------------
+
 main :: IO ()
 main = do
   quickCheck (semigroupAssoc :: TrivAssoc)
   quickCheck (semigroupAssoc :: TwoAssoc)
   quickCheck (semigroupAssoc :: OrAssoc)
   quickCheck (combSemigroupAssoc :: CombAssoc)
+  quickCheck (compSemigroupAssoc :: CompAssoc)
+  quickCheck (semigroupAssoc :: ValidAssoc)
