@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Use <$>" #-}
+{-# HLINT ignore "Monoid law, left identity" #-}
+{-# HLINT ignore "Monoid law, right identity" #-}
 import Data.Monoid (Sum)
 import Test.QuickCheck (Arbitrary (arbitrary), CoArbitrary, frequency, oneof, quickCheck)
 
@@ -9,13 +11,24 @@ data Trivial = Trivial deriving (Eq, Show)
 instance Semigroup Trivial where
   _ <> _ = Trivial
 
+instance Monoid Trivial where
+  mempty = Trivial
+
 instance Arbitrary Trivial where
   arbitrary = return Trivial
 
 semigroupAssoc :: (Eq m, Semigroup m) => m -> m -> m -> Bool
 semigroupAssoc a b c = a <> (b <> c) == (a <> b) <> c
 
+monoidLeftIdentity :: (Eq m, Monoid m) => m -> Bool
+monoidLeftIdentity a = mempty <> a == a
+
+monoidRightIdentity :: (Eq m, Monoid m) => m -> Bool
+monoidRightIdentity a = a <> mempty == a
+
 type TrivAssoc = Trivial -> Trivial -> Trivial -> Bool
+
+type TrivIdent = Trivial -> Bool
 
 -------------------------------------------------------------------
 
@@ -24,6 +37,9 @@ data Two a b = Two a b deriving (Eq, Show)
 instance (Semigroup a, Semigroup b) => Semigroup (Two a b) where
   (Two a b) <> (Two a' b') = Two (a <> a') (b <> b')
 
+instance (Monoid a, Monoid b) => Monoid (Two a b) where
+  mempty = Two mempty mempty
+
 instance (Arbitrary a, Arbitrary b) => Arbitrary (Two a b) where
   arbitrary = do
     a <- arbitrary
@@ -31,6 +47,8 @@ instance (Arbitrary a, Arbitrary b) => Arbitrary (Two a b) where
     return $ Two a b
 
 type TwoAssoc = Two String String -> Two String String -> Two String String -> Bool
+
+type TwoIdent = Two String String -> Bool
 
 -------------------------------------------------------------------
 
@@ -60,13 +78,24 @@ instance Show (Combine a b) where
 instance (Semigroup b) => Semigroup (Combine a b) where
   (Combine f) <> (Combine g) = Combine $ \a -> f a <> g a
 
+instance (Monoid b) => Monoid (Combine a b) where
+  mempty = Combine $ const mempty
+
 instance (CoArbitrary a, Arbitrary b) => Arbitrary (Combine a b) where
   arbitrary = Combine <$> arbitrary
 
 combSemigroupAssoc :: (Eq b, Semigroup b) => Combine a b -> Combine a b -> Combine a b -> a -> Bool
 combSemigroupAssoc f g h a = unCombine (f <> (g <> h)) a == unCombine ((f <> g) <> h) a
 
+combMonoidLeft :: (Eq b, Monoid b) => Combine a b -> a -> Bool
+combMonoidLeft f a = unCombine (mempty <> f) a == unCombine f a
+
+combMonoidRight :: (Eq b, Monoid b) => Combine a b -> a -> Bool
+combMonoidRight f a = unCombine (f <> mempty) a == unCombine f a
+
 type CombAssoc = Combine Int (Sum Int) -> Combine Int (Sum Int) -> Combine Int (Sum Int) -> Int -> Bool
+
+type CombIdent = Combine Int (Sum Int) -> Int -> Bool
 
 -------------------------------------------------------------------
 
@@ -79,13 +108,24 @@ instance Show (Comp a) where
 instance (Semigroup a) => Semigroup (Comp a) where
   (Comp f) <> (Comp g) = Comp $ f . g
 
+instance (Monoid a) => Monoid (Comp a) where
+  mempty = Comp id
+
 instance (CoArbitrary a, Arbitrary a) => Arbitrary (Comp a) where
   arbitrary = Comp <$> arbitrary
 
 compSemigroupAssoc :: (Eq a, Semigroup a) => Comp a -> Comp a -> Comp a -> a -> Bool
 compSemigroupAssoc f g h a = unComp (f <> (g <> h)) a == unComp ((f <> g) <> h) a
 
+compMonoidLeft :: (Eq a, Monoid a) => Comp a -> a -> Bool
+compMonoidLeft f a = unComp (mempty <> f) a == unComp f a
+
+compMonoidRight :: (Eq a, Monoid a) => Comp a -> a -> Bool
+compMonoidRight f a = unComp (f <> mempty) a == unComp f a
+
 type CompAssoc = Comp String -> Comp String -> Comp String -> String -> Bool
+
+type CompIdent = Comp String -> String -> Bool
 
 -------------------------------------------------------------------
 
@@ -114,3 +154,11 @@ main = do
   quickCheck (combSemigroupAssoc :: CombAssoc)
   quickCheck (compSemigroupAssoc :: CompAssoc)
   quickCheck (semigroupAssoc :: ValidAssoc)
+  quickCheck (monoidLeftIdentity :: TrivIdent)
+  quickCheck (monoidRightIdentity :: TrivIdent)
+  quickCheck (monoidLeftIdentity :: TwoIdent)
+  quickCheck (monoidRightIdentity :: TwoIdent)
+  quickCheck (combMonoidLeft :: CombIdent)
+  quickCheck (combMonoidRight :: CombIdent)
+  quickCheck (compMonoidLeft :: CompIdent)
+  quickCheck (compMonoidRight :: CompIdent)
