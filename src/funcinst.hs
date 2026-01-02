@@ -65,6 +65,25 @@ type TwoComp = Fun String Char -> Fun Char Float -> Two Int String -> Bool
 
 --------------------------------------------------------------------------------
 
+data Four a b = Four a a b b deriving (Eq, Show)
+
+instance Functor (Four a) where
+  fmap f (Four u v x y) = Four u v (f x) (f y)
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Four a b) where
+  arbitrary = do
+    u <- arbitrary
+    v <- arbitrary
+    x <- arbitrary
+    y <- arbitrary
+    return $ Four u v x y
+
+type FourId = Four Int String -> Bool
+
+type FourComp = Fun String Char -> Fun Char Float -> Four Int String -> Bool
+
+--------------------------------------------------------------------------------
+
 check :: IO ()
 check = do
   quickCheck (functorIdentity :: IdId)
@@ -73,3 +92,5 @@ check = do
   quickCheck (functorCompose :: PairComp)
   quickCheck (functorIdentity :: TwoId)
   quickCheck (functorCompose :: TwoComp)
+  quickCheck (functorIdentity :: FourId)
+  quickCheck (functorCompose :: FourComp)
