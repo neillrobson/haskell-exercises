@@ -74,3 +74,10 @@ instance Functor GoatLord where
   fmap _ NoGoat = NoGoat
   fmap f (OneGoat x) = OneGoat $ f x
   fmap f (MoreGoats x y z) = MoreGoats (fmap f x) (fmap f y) (fmap f z)
+
+data TalkToMe a = Halt | Print String a | Read (String -> a)
+
+instance Functor TalkToMe where
+  fmap _ Halt = Halt
+  fmap f (Print str x) = Print str $ f x
+  fmap f (Read sa) = Read $ f . sa
