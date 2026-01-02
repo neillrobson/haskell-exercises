@@ -41,3 +41,36 @@ newtype EvilGoateeConst a b = GoatyConst b
 
 instance Functor (EvilGoateeConst a) where
   fmap f (GoatyConst b) = GoatyConst $ f b
+
+newtype LiftItOut f a = LiftItOut (f a)
+
+instance (Functor f) => Functor (LiftItOut f) where
+  fmap fn (LiftItOut fa) = LiftItOut $ fmap fn fa
+
+data Parappa f g a = DaWrappa (f a) (g a)
+
+instance (Functor f, Functor g) => Functor (Parappa f g) where
+  fmap fn (DaWrappa fa ga) = DaWrappa (fmap fn fa) (fmap fn ga)
+
+data IgnoreOne f g a b = IgnoringSomething (f a) (g b)
+
+instance (Functor g) => Functor (IgnoreOne f g a) where
+  fmap fn (IgnoringSomething fa gb) = IgnoringSomething fa $ fmap fn gb
+
+data Notorious g o a t = Notorious (g o) (g a) (g t)
+
+instance (Functor g) => Functor (Notorious g o a) where
+  fmap fn (Notorious go ga gt) = Notorious go ga $ fmap fn gt
+
+data List a = Nil | Cons a (List a)
+
+instance Functor List where
+  fmap _ Nil = Nil
+  fmap f (Cons a as) = Cons (f a) (fmap f as)
+
+data GoatLord a = NoGoat | OneGoat a | MoreGoats (GoatLord a) (GoatLord a) (GoatLord a)
+
+instance Functor GoatLord where
+  fmap _ NoGoat = NoGoat
+  fmap f (OneGoat x) = OneGoat $ f x
+  fmap f (MoreGoats x y z) = MoreGoats (fmap f x) (fmap f y) (fmap f z)
