@@ -84,6 +84,35 @@ type FourComp = Fun String Char -> Fun Char Float -> Four Int String -> Bool
 
 --------------------------------------------------------------------------------
 
+newtype Wrap f a = Wrap (f a) deriving (Eq, Show)
+
+instance (Functor f) => Functor (Wrap f) where
+  fmap fn (Wrap fa) = Wrap $ fmap fn fa
+
+--------------------------------------------------------------------------------
+
+-- What if I wanted to define Show for a function type?
+
+newtype MyFn a b = MyFn {getFn :: a -> b}
+
+instance Show (MyFn a b) where
+  show _ = "It's a function"
+
+-- But how do I actually call functions in the MyFn type?
+
+compose :: MyFn b c -> MyFn a b -> MyFn a c
+compose fbc fab =
+  let bc = getFn fbc
+      ab = getFn fab
+   in MyFn $ bc . ab
+
+-- Or, using View Patterns:
+
+viewCompose :: MyFn b c -> MyFn a b -> MyFn a c
+viewCompose (getFn -> bc) (getFn -> ab) = MyFn $ bc . ab
+
+--------------------------------------------------------------------------------
+
 check :: IO ()
 check = do
   quickCheck (functorIdentity :: IdId)
