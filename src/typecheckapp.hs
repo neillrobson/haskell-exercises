@@ -1,4 +1,7 @@
 import Data.List (elemIndex)
+import Test.QuickCheck
+import Test.QuickCheck.Checkers
+import Test.QuickCheck.Classes
 
 added :: Maybe Integer
 added = (+ 3) <$> (lookup (3 :: Integer) $ zip [1, 2, 3] [4, 5, 6])
@@ -60,3 +63,30 @@ instance Functor (Constant a) where
 instance (Monoid a) => Applicative (Constant a) where
   pure _ = Constant mempty
   (Constant c) <*> (Constant c') = Constant $ c <> c'
+
+--------------------------------------------------------------------------------
+
+str :: Maybe String
+str = const <$> Just "Hello" <*> pure "World"
+
+tup :: Maybe (Int, Int, String, [Int])
+tup = (,,,) <$> Just 90 <*> Just 10 <*> Just "Tierness" <*> pure [1, 2, 3]
+
+--------------------------------------------------------------------------------
+
+data Bull = Fools | Twoo deriving (Eq, Show)
+
+instance Arbitrary Bull where
+  arbitrary = frequency [(1, return Fools), (1, return Twoo)]
+
+instance Semigroup Bull where
+  _ <> _ = Fools
+
+instance Monoid Bull where
+  mempty = Fools
+
+instance EqProp Bull where
+  (=-=) = eq
+
+main :: IO ()
+main = quickBatch (monoid Twoo)
