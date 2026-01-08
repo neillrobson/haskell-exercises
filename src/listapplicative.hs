@@ -1,4 +1,4 @@
-import Test.QuickCheck (Arbitrary, frequency)
+import Test.QuickCheck (Testable (property), frequency)
 import Test.QuickCheck.Arbitrary (Arbitrary (arbitrary))
 import Test.QuickCheck.Checkers (EqProp ((=-=)), eq, quickBatch)
 import Test.QuickCheck.Classes (applicative)
@@ -63,7 +63,36 @@ instance (Eq a) => EqProp (ZipList' a) where
 
 --------------------------------------------------------------------------------
 
+data Validation e a = Failure e | Success a deriving (Eq, Show)
+
+instance Functor (Validation e) where
+  fmap _ (Failure e) = Failure e
+  fmap g (Success a) = Success $ g a
+
+instance (Monoid e) => Applicative (Validation e) where
+  pure a = Success a
+  (Failure x) <*> (Failure y) = Failure $ x <> y
+  (Success _) <*> (Failure y) = Failure y
+  (Failure x) <*> (Success _) = Failure x
+  (Success x) <*> (Success y) = Success $ x y
+
+--------------------------------------------------------------------------------
+
+instance (Arbitrary e, Arbitrary a) => Arbitrary (Validation e a) where
+  arbitrary = do
+    e <- arbitrary
+    a <- arbitrary
+    frequency [(1, return $ Failure e), (1, return $ Success a)]
+
+instance (Eq e, Eq a) => EqProp (Validation e a) where
+  (Failure x) =-= (Failure y) = x `eq` y
+  (Success x) =-= (Success y) = x `eq` y
+  _ =-= _ = property False
+
+--------------------------------------------------------------------------------
+
 main :: IO ()
 main = do
   quickBatch $ applicative $ Cons ('a', 'b', 'c') Nil
   quickBatch $ applicative $ ZipList' [('a', 'b', 'c')]
+  quickBatch $ applicative $ (Failure "err" :: Validation String (Char, Int, Float))
