@@ -25,8 +25,6 @@ instance Functor List where
 
 instance Applicative List where
   pure = flip Cons Nil
-  Nil <*> _ = Nil
-  _ <*> Nil = Nil
   fs <*> as = flatMap (flip fmap as) fs
 
 --------------------------------------------------------------------------------
@@ -50,12 +48,7 @@ instance Functor ZipList' where
 
 instance Applicative ZipList' where
   pure a = ZipList' $ repeat a
-  (ZipList' []) <*> _ = ZipList' []
-  _ <*> (ZipList' []) = ZipList' []
-  (ZipList' (x : xs)) <*> (ZipList' (y : ys)) = ZipList' $ z : zs
-    where
-      z = x y
-      (ZipList' zs) = (ZipList' xs) <*> (ZipList' ys)
+  (ZipList' xs) <*> (ZipList' ys) = ZipList' $ zipWith ($) xs ys
 
 --------------------------------------------------------------------------------
 
