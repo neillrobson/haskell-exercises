@@ -52,8 +52,31 @@ checkPair = quickBatch $ applicative $ Pair ('a', 'b', 'c') ('d', 'e', 'f')
 
 --------------------------------------------------------------------------------
 
-data Two a b = Two a b
+data Two a b = Two a b deriving (Show)
 
-data Three a b = Three a b b
+instance Functor (Two a) where
+  fmap g (Two x y) = Two x $ g y
 
-data Four a b = Four a a a b
+instance (Monoid a) => Applicative (Two a) where
+  pure x = Two mempty x
+  (Two v w) <*> (Two x y) = Two (v <> x) $ w y
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Two a b) where
+  arbitrary = do
+    a <- arbitrary
+    b <- arbitrary
+    return $ Two a b
+
+instance (Eq a, Eq b) => EqProp (Two a b) where
+  (Two v w) =-= (Two x y) = property $ (v == x) && (w == y)
+
+checkTwo :: IO ()
+checkTwo = quickBatch $ applicative $ (undefined :: Two String (Int, Int, Int))
+
+--------------------------------------------------------------------------------
+
+data Three a b = Three a b b deriving (Show)
+
+--------------------------------------------------------------------------------
+
+data Four a b = Four a a a b deriving (Show)
