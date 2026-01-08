@@ -1,3 +1,8 @@
+import Test.QuickCheck (Arbitrary, frequency)
+import Test.QuickCheck.Arbitrary (Arbitrary (arbitrary))
+import Test.QuickCheck.Checkers (EqProp ((=-=)), eq, quickBatch)
+import Test.QuickCheck.Classes (applicative)
+
 data List a = Nil | Cons a (List a) deriving (Eq, Show)
 
 append :: List a -> List a -> List a
@@ -23,3 +28,18 @@ instance Applicative List where
   Nil <*> _ = Nil
   _ <*> Nil = Nil
   fs <*> as = flatMap (flip fmap as) fs
+
+--------------------------------------------------------------------------------
+
+instance (Arbitrary a) => Arbitrary (List a) where
+  arbitrary =
+    frequency
+      [ (1, return Nil),
+        (1, Cons <$> arbitrary <*> arbitrary)
+      ]
+
+instance (Eq a) => EqProp (List a) where
+  (=-=) = eq
+
+main :: IO ()
+main = quickBatch $ applicative $ Cons ('a', 'b', 'c') Nil
