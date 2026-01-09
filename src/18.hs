@@ -148,3 +148,24 @@ checkList = do
   quickBatch $ functor trigger
   quickBatch $ applicative trigger
   quickBatch $ monad trigger
+
+--------------------------------------------------------------------------------
+
+-- Manually re-defining "join"
+j :: (Monad m) => m (m a) -> m a
+j = (>>= id)
+
+-- Manually re-defining "fmap" (or "liftM")
+l1 :: (Monad m) => (a -> b) -> m a -> m b
+l1 g = (>>= (return . g))
+
+-- Manually re-defining "liftM2"
+l2 :: (Monad m) => (a -> b -> c) -> m a -> m b -> m c
+l2 g ma mb = l1 g ma >>= flip l1 mb
+
+-- Manually re-defining "ap"
+aa :: (Monad m) => m a -> m (a -> b) -> m b
+aa xs fs = do
+  f <- fs
+  x <- xs
+  return $ f x
