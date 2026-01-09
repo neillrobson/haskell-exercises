@@ -77,6 +77,22 @@ checkTwo = quickBatch $ applicative $ (undefined :: Two String (Int, Int, Int))
 
 data Three a b = Three a b b deriving (Show)
 
---------------------------------------------------------------------------------
+instance Functor (Three a) where
+  fmap g (Three x y z) = Three x (g y) (g z)
 
-data Four a b = Four a a a b deriving (Show)
+instance (Monoid a) => Applicative (Three a) where
+  pure x = Three mempty x x
+  (Three u v w) <*> (Three x y z) = Three (u <> x) (v y) (w z)
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Three a b) where
+  arbitrary = do
+    a <- arbitrary
+    b1 <- arbitrary
+    b2 <- arbitrary
+    return $ Three a b1 b2
+
+instance (Eq a, Eq b) => EqProp (Three a b) where
+  (Three g h i) =-= (Three x y z) = property $ (g == x) && (h == y) && (i == z)
+
+checkThree :: IO ()
+checkThree = quickBatch $ applicative $ (undefined :: Three String (Char, Char, Char))
