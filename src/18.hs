@@ -169,3 +169,13 @@ aa xs fs = do
   f <- fs
   x <- xs
   return $ f x
+
+meh :: (Monad m) => [a] -> (a -> m b) -> m [b]
+meh [] _ = return []
+meh (x : xs) g = do
+  ys <- meh xs g
+  y <- g x
+  return $ y : ys
+
+flipType :: (Monad m) => [m a] -> m [a]
+flipType = flip meh id
