@@ -1,3 +1,4 @@
+import Control.Applicative (liftA3)
 import Test.QuickCheck (Arbitrary (arbitrary))
 import Test.QuickCheck.Checkers (EqProp ((=-=)), quickBatch)
 import Test.QuickCheck.Classes (applicative)
@@ -96,3 +97,14 @@ instance (Eq a, Eq b) => EqProp (Three a b) where
 
 checkThree :: IO ()
 checkThree = quickBatch $ applicative $ (undefined :: Three String (Char, Char, Char))
+
+--------------------------------------------------------------------------------
+
+stops :: String
+stops = "pbtdkg"
+
+vowels :: String
+vowels = "aeiou"
+
+combos :: [a] -> [b] -> [c] -> [(a, b, c)]
+combos = liftA3 (,,)
