@@ -43,3 +43,28 @@ testIdentity = do
   let trigger :: Identity ([Int], [Int], Int, Sum Int)
       trigger = undefined
   quickBatch $ traversable trigger
+
+--------------------------------------------------------------------------------
+
+newtype Constant a b = Constant {getConstant :: a} deriving (Eq, Show)
+
+instance Functor (Constant a) where
+  fmap _ (Constant x) = Constant x
+
+instance Foldable (Constant a) where
+  foldMap _ _ = mempty
+
+instance Traversable (Constant a) where
+  sequenceA (Constant x) = pure $ Constant x
+
+instance (Arbitrary a) => Arbitrary (Constant a b) where
+  arbitrary = Constant <$> arbitrary
+
+instance (Eq a) => EqProp (Constant a b) where
+  (Constant x) =-= (Constant y) = eq x y
+
+testConstant :: IO ()
+testConstant = do
+  let trigger :: Constant String ([Int], [Int], Int, Sum Int)
+      trigger = undefined
+  quickBatch $ traversable trigger
