@@ -1,0 +1,4 @@
+-- NB: Think of "Constant" like a 2-tuple but always ignoring the second value.
+-- Just like how, for two-tuple's Applicative, the first type needs to be a Monoid
+-- (so that they can be squished together),
+-- The first type of Constant must also be a Monoid for similar squishing.
