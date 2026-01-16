@@ -68,3 +68,27 @@ testConstant = do
   let trigger :: Constant String ([Int], [Int], Int, Sum Int)
       trigger = undefined
   quickBatch $ traversable trigger
+
+--------------------------------------------------------------------------------
+
+data Optional a = Nada | Yep a deriving (Eq, Show)
+
+--------------------------------------------------------------------------------
+
+data List a = Nil | Cons a (List a) deriving (Eq, Show)
+
+--------------------------------------------------------------------------------
+
+data Three a b c = Three a b c deriving (Eq, Show)
+
+--------------------------------------------------------------------------------
+
+data Bigger a b = Bigger a b b b deriving (Eq, Show)
+
+--------------------------------------------------------------------------------
+
+data S n a = S (n a) a deriving (Eq, Show)
+
+--------------------------------------------------------------------------------
+
+data Tree a = Empty | Leaf a | Node (Tree a) a (Tree a) deriving (Eq, Show)
