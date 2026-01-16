@@ -190,3 +190,18 @@ testS = do
 --------------------------------------------------------------------------------
 
 data Tree a = Empty | Leaf a | Node (Tree a) a (Tree a) deriving (Eq, Show)
+
+instance Functor Tree where
+  fmap _ Empty = Empty
+  fmap g (Leaf a) = Leaf $ g a
+  fmap g (Node t1 a t2) = Node (fmap g t1) (g a) (fmap g t2)
+
+instance Foldable Tree where
+  foldMap _ Empty = mempty
+  foldMap g (Leaf a) = g a
+  foldMap g (Node t1 a t2) = (foldMap g t1) <> (g a) <> (foldMap g t2)
+
+instance Traversable Tree where
+  sequenceA Empty = pure Empty
+  sequenceA (Leaf fa) = Leaf <$> fa
+  sequenceA (Node ft1 fa ft2) = Node <$> (sequenceA ft1) <*> fa <*> (sequenceA ft2)
