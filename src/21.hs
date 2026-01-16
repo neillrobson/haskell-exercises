@@ -1,6 +1,11 @@
+import Data.Monoid (Sum)
+import Test.QuickCheck (Arbitrary (arbitrary))
+import Test.QuickCheck.Checkers (EqProp, eq, quickBatch, (=-=))
+import Test.QuickCheck.Classes (traversable)
+
 -- NB: Think of "Constant" like a 2-tuple but always ignoring the second value.
--- Just like how, for two-tuple's Applicative, the first type needs to be a Monoid
--- (so that they can be squished together),
+-- Just like how, for two-tuple's Applicative, the first type needs to be a
+-- Monoid (so that they can be squished together),
 -- The first type of Constant must also be a Monoid for similar squishing.
 
 -- The Compose datatype squishes two "structure types" into one.
@@ -13,3 +18,28 @@
 -- The abstract type of Compose is "Compose g f a": since classes like Monad
 -- and Traversable treat all but the last type parameter as untouchable,
 -- g and f (Maybe and []) are both lifted and "a" (Integer) is worked on.
+
+--------------------------------------------------------------------------------
+
+newtype Identity a = Identity a deriving (Eq, Ord, Show)
+
+instance Functor Identity where
+  fmap g (Identity x) = Identity $ g x
+
+instance Foldable Identity where
+  foldMap g (Identity x) = g x
+
+instance Traversable Identity where
+  sequenceA (Identity fa) = Identity <$> fa
+
+instance (Arbitrary a) => Arbitrary (Identity a) where
+  arbitrary = Identity <$> arbitrary
+
+instance (Eq a) => EqProp (Identity a) where
+  (Identity x) =-= (Identity y) = eq x y
+
+testIdentity :: IO ()
+testIdentity = do
+  let trigger :: Identity ([Int], [Int], Int, Sum Int)
+      trigger = undefined
+  quickBatch $ traversable trigger
