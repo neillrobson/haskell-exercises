@@ -1,5 +1,5 @@
 import Data.Monoid (Sum)
-import Test.QuickCheck (Arbitrary (arbitrary))
+import Test.QuickCheck (Arbitrary (arbitrary), Gen, sized)
 import Test.QuickCheck.Checkers (EqProp, eq, quickBatch, (=-=))
 import Test.QuickCheck.Classes (traversable)
 
@@ -40,7 +40,7 @@ instance (Eq a) => EqProp (Identity a) where
 
 testIdentity :: IO ()
 testIdentity = do
-  let trigger :: Identity ([Int], [Int], Int, Sum Int)
+  let trigger :: Identity (Maybe Int, Maybe Int, Int, Sum Int)
       trigger = undefined
   quickBatch $ traversable trigger
 
@@ -65,7 +65,7 @@ instance (Eq a) => EqProp (Constant a b) where
 
 testConstant :: IO ()
 testConstant = do
-  let trigger :: Constant String ([Int], [Int], Int, Sum Int)
+  let trigger :: Constant String (Maybe Int, Maybe Int, Int, Sum Int)
       trigger = undefined
   quickBatch $ traversable trigger
 
@@ -73,17 +73,77 @@ testConstant = do
 
 data Optional a = Nada | Yep a deriving (Eq, Show)
 
+instance Functor Optional where
+  fmap _ Nada = Nada
+  fmap g (Yep x) = Yep $ g x
+
+instance Foldable Optional where
+  foldMap _ Nada = mempty
+  foldMap g (Yep x) = g x
+
+instance Traversable Optional where
+  sequenceA Nada = pure Nada
+  sequenceA (Yep fx) = Yep <$> fx
+
 --------------------------------------------------------------------------------
 
 data List a = Nil | Cons a (List a) deriving (Eq, Show)
+
+instance Functor List where
+  fmap _ Nil = Nil
+  fmap g (Cons x xs) = Cons (g x) $ fmap g xs
+
+instance Foldable List where
+  foldMap _ Nil = mempty
+  foldMap g (Cons x xs) = (g x) <> (foldMap g xs)
+
+instance Traversable List where
+  sequenceA Nil = pure Nil
+  sequenceA (Cons fx fxs) = Cons <$> fx <*> sequenceA fxs
+
+arbitraryList :: (Arbitrary a) => Int -> Gen (List a)
+arbitraryList n
+  | n == 0 = return Nil
+  | n > 100 = arbitraryList 100
+  | otherwise = Cons <$> arbitrary <*> arbitraryList (n - 1)
+
+instance (Arbitrary a) => Arbitrary (List a) where
+  arbitrary = sized arbitraryList
+
+instance (Eq a) => EqProp (List a) where
+  (=-=) = eq
+
+testList :: IO ()
+testList = do
+  let trigger :: List (Maybe Int, Maybe Int, Int, Sum Int)
+      trigger = undefined
+  quickBatch $ traversable trigger
 
 --------------------------------------------------------------------------------
 
 data Three a b c = Three a b c deriving (Eq, Show)
 
+instance Functor (Three a b) where
+  fmap g (Three x y z) = Three x y $ g z
+
+instance Foldable (Three a b) where
+  foldMap g (Three _ _ z) = g z
+
+instance Traversable (Three a b) where
+  sequenceA (Three a b fz) = Three a b <$> fz
+
 --------------------------------------------------------------------------------
 
 data Bigger a b = Bigger a b b b deriving (Eq, Show)
+
+instance Functor (Bigger a) where
+  fmap g (Bigger a x y z) = Bigger a (g x) (g y) (g z)
+
+instance Foldable (Bigger a) where
+  foldMap g (Bigger _ x y z) = (g x) <> (g y) <> (g z)
+
+instance Traversable (Bigger a) where
+  sequenceA (Bigger a x y z) = Bigger a <$> x <*> y <*> z
 
 --------------------------------------------------------------------------------
 
