@@ -1,5 +1,5 @@
 import Data.Monoid (Sum)
-import Test.QuickCheck (Arbitrary (arbitrary), Gen, sized)
+import Test.QuickCheck (Arbitrary (arbitrary), Gen, Property, Testable, sized)
 import Test.QuickCheck.Checkers (EqProp, eq, quickBatch, (=-=))
 import Test.QuickCheck.Classes (traversable)
 
@@ -165,6 +165,27 @@ testBigger = do
 --------------------------------------------------------------------------------
 
 data S n a = S (n a) a deriving (Eq, Show)
+
+instance (Functor n) => Functor (S n) where
+  fmap g (S nx x) = S (g <$> nx) $ g x
+
+instance (Foldable n) => Foldable (S n) where
+  foldMap g (S nx x) = (foldMap g nx) <> g x
+
+instance (Traversable n) => Traversable (S n) where
+  sequenceA (S nx x) = S <$> (sequenceA nx) <*> x
+
+instance (Functor n, Arbitrary (n a), Arbitrary a) => Arbitrary (S n a) where
+  arbitrary = S <$> arbitrary <*> arbitrary
+
+instance (Applicative n, Testable (n Property), Eq a, Eq (n a), EqProp a) => EqProp (S n a) where
+  (=-=) = eq
+
+testS :: IO ()
+testS = do
+  let trigger :: S [] (Maybe Int, Maybe Int, Int, Sum Int)
+      trigger = undefined
+  quickBatch $ traversable trigger
 
 --------------------------------------------------------------------------------
 
