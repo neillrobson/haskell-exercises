@@ -36,7 +36,7 @@ instance (Arbitrary a) => Arbitrary (Identity a) where
   arbitrary = Identity <$> arbitrary
 
 instance (Eq a) => EqProp (Identity a) where
-  (Identity x) =-= (Identity y) = eq x y
+  (=-=) = eq
 
 testIdentity :: IO ()
 testIdentity = do
@@ -61,7 +61,7 @@ instance (Arbitrary a) => Arbitrary (Constant a b) where
   arbitrary = Constant <$> arbitrary
 
 instance (Eq a) => EqProp (Constant a b) where
-  (Constant x) =-= (Constant y) = eq x y
+  (=-=) = eq
 
 testConstant :: IO ()
 testConstant = do
@@ -144,6 +144,23 @@ instance Foldable (Bigger a) where
 
 instance Traversable (Bigger a) where
   sequenceA (Bigger a x y z) = Bigger a <$> x <*> y <*> z
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Bigger a b) where
+  arbitrary = do
+    a <- arbitrary
+    x <- arbitrary
+    y <- arbitrary
+    z <- arbitrary
+    return $ Bigger a x y z
+
+instance (Eq a, Eq b) => EqProp (Bigger a b) where
+  (=-=) = eq
+
+testBigger :: IO ()
+testBigger = do
+  let trigger :: Bigger Char (Maybe Int, Maybe Int, Int, Sum Int)
+      trigger = undefined
+  quickBatch $ traversable trigger
 
 --------------------------------------------------------------------------------
 
