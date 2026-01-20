@@ -1,3 +1,5 @@
+{-# LANGUAGE InstanceSigs #-}
+
 import Data.Char
 
 cap :: [Char] -> [Char]
@@ -36,3 +38,13 @@ ask = Reader id
 
 asks :: (r -> a) -> Reader r a
 asks f = Reader f
+
+instance Functor (Reader r) where
+  fmap :: (a -> b) -> Reader r a -> Reader r b
+  fmap g (Reader ra) = Reader $ g . ra
+
+instance Applicative (Reader r) where
+  pure :: a -> Reader r a
+  pure = Reader . const
+  (<*>) :: Reader r (a -> b) -> Reader r a -> Reader r b
+  (Reader rab) <*> (Reader ra) = Reader $ rab <*> ra
