@@ -29,4 +29,29 @@ zs :: Maybe Integer
 zs = lookup 4 $ zip x y
 
 z' :: Integer -> Maybe Integer
-z' = flip lookup $ zip x y
+z' = flip lookup $ zip x z
+
+x1 :: Maybe (Integer, Integer)
+x1 = (,) <$> xs <*> ys
+
+x2 :: Maybe (Integer, Integer)
+x2 = (,) <$> ys <*> zs
+
+x3 :: Integer -> (Maybe Integer, Maybe Integer)
+x3 = liftA2 (,) z' z'
+
+summed :: (Num c) => (c, c) -> c
+summed = uncurry (+)
+
+bolt :: Integer -> Bool
+bolt = (&&) <$> (> 3) <*> (< 8)
+
+main :: IO ()
+main = do
+  print $ sequenceA [Just (3 :: Integer), Just 2, Just 1]
+  print $ sequenceA [x, y]
+  print $ sequenceA [xs, ys]
+  print $ summed <$> ((,) <$> xs <*> ys)
+  print $ fmap summed ((,) <$> xs <*> zs)
+  print $ bolt 7
+  print $ fmap bolt z
