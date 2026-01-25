@@ -1,8 +1,5 @@
 module ReaderPractice where
 
-import Control.Applicative
-import Data.Maybe
-
 x :: [Integer]
 x = [1, 2, 3]
 
