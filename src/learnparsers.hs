@@ -1,9 +1,10 @@
 module LearnParsers where
 
+import Control.Applicative ((<|>))
 import Text.Trifecta
-  ( CharParsing (char),
+  ( CharParsing (char, string),
     Parser,
-    Parsing (unexpected),
+    Parsing (eof, unexpected),
     parseString,
   )
 
@@ -11,19 +12,25 @@ stop :: Parser a
 stop = unexpected "stop"
 
 one :: Parser Char
-one = char '1'
+one = char '1' <* eof
 
 one' :: Parser a
 one' = one >> stop
 
 oneTwo :: Parser Char
-oneTwo = char '1' >> char '2'
+oneTwo = char '1' >> char '2' <* eof
 
 oneTwo' :: Parser a
 oneTwo' = oneTwo >> stop
 
 testParse :: Parser Char -> IO ()
 testParse p = print $ parseString p mempty "123"
+
+oneTwoThreeStr :: Parser String
+oneTwoThreeStr = string "123" <|> string "12" <|> string "1"
+
+p123 :: String -> IO ()
+p123 = print . (parseString oneTwoThreeStr mempty)
 
 pNL :: String -> IO ()
 pNL s = putStrLn $ '\n' : s
