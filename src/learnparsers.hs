@@ -32,6 +32,9 @@ oneTwoThreeStr = string "123" <|> string "12" <|> string "1"
 p123 :: String -> IO ()
 p123 = print . (parseString oneTwoThreeStr mempty)
 
+myString :: String -> Parser String
+myString = traverse char
+
 pNL :: String -> IO ()
 pNL s = putStrLn $ '\n' : s
 
