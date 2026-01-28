@@ -29,6 +29,9 @@ testParse p = print $ parseString p mempty "123"
 oneTwoThreeStr :: Parser String
 oneTwoThreeStr = string "123" <|> string "12" <|> string "1"
 
+oneTwoThreeStr' :: Parser a
+oneTwoThreeStr' = oneTwoThreeStr >> stop
+
 p123 :: String -> IO ()
 p123 = print . (parseString oneTwoThreeStr mempty)
 
