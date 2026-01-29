@@ -2,7 +2,6 @@
 
 module Text.Fractions where
 
-import Control.Applicative
 import Data.Ratio ((%))
 import Text.Trifecta
 
@@ -53,3 +52,12 @@ testVirtuous = do
 
   print $ parseFraction' shouldWork
   print $ parseFraction' shouldAlsoWork
+
+testSuccessValue :: IO ()
+testSuccessValue = do
+  let parseWithValue = parseString (integer <* eof) mempty
+
+  print $ parseWithValue "123"
+  print $ parseWithValue "123abc"
+  print $ parseWithValue "12"
+  print $ parseWithValue "ab12"
