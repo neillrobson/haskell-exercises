@@ -16,6 +16,7 @@ library
     , hspec
     , QuickCheck
     , random
+    , raw-strings-qq
     , transformers
     , trifecta
 
