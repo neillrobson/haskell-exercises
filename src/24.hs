@@ -48,3 +48,15 @@ parseSemVer = do
   meta <- try parseMetadata <|> return []
   eof
   return $ SemVer major minor patch rel meta
+
+--------------------------------------------------------------------------------
+-- Integers
+--------------------------------------------------------------------------------
+
+parseDigit :: Parser Char
+parseDigit = oneOf "0123456789"
+
+base10Integer :: Parser Integer
+base10Integer = do
+  str <- some parseDigit
+  return $ read str
