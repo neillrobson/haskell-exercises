@@ -22,7 +22,7 @@ type Metadata = [NumberOrString]
 data SemVer = SemVer Major Minor Patch Release Metadata deriving (Eq, Show)
 
 parseNumOrStr :: Parser NumberOrString
-parseNumOrStr = (NOSI <$> integer) <|> (NOSS <$> some letter)
+parseNumOrStr = (NOSI <$> try (integer <* notFollowedBy alphaNum)) <|> (NOSS <$> some alphaNum)
 
 parseRelease :: Parser Release
 parseRelease = do
@@ -33,8 +33,6 @@ parseMetadata :: Parser Metadata
 parseMetadata = do
   _ <- char '+'
   sepBy1 parseNumOrStr $ char '.'
-
--- TODO: Fails on "1.0.0-beta+oof.sha.41af286"
 
 parseSemVer :: Parser SemVer
 parseSemVer = do
