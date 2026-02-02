@@ -21,6 +21,9 @@ type Metadata = [NumberOrString]
 
 data SemVer = SemVer Major Minor Patch Release Metadata deriving (Eq, Show)
 
+instance Ord SemVer where
+  compare (SemVer ma1 mi1 pa1 _ _) (SemVer ma2 mi2 pa2 _ _) = compare [ma1, mi1, pa1] [ma2, mi2, pa2]
+
 parseNumOrStr :: Parser NumberOrString
 parseNumOrStr = (NOSI <$> try (integer <* notFollowedBy alphaNum)) <|> (NOSS <$> some alphaNum)
 
