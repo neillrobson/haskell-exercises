@@ -3,6 +3,7 @@ module MyParsers where
 import Control.Applicative
 import Data.Char (digitToInt)
 import Data.Foldable
+import Data.Maybe (isJust)
 import Text.Trifecta
 
 --------------------------------------------------------------------------------
@@ -64,3 +65,9 @@ base10Integer = do
   return $ foldl' go 0 str
   where
     go acc x = 10 * acc + toInteger (digitToInt x)
+
+base10Integer' :: Parser Integer
+base10Integer' = do
+  sign <- optional $ char '-'
+  int <- base10Integer
+  return $ if isJust sign then negate int else int
