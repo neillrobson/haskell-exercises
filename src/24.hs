@@ -1,6 +1,8 @@
 module MyParsers where
 
 import Control.Applicative
+import Data.Char (digitToInt)
+import Data.Foldable
 import Text.Trifecta
 
 --------------------------------------------------------------------------------
@@ -59,4 +61,6 @@ parseDigit = oneOf "0123456789"
 base10Integer :: Parser Integer
 base10Integer = do
   str <- some parseDigit
-  return $ read str
+  return $ foldl' go 0 str
+  where
+    go acc x = 10 * acc + toInteger (digitToInt x)
