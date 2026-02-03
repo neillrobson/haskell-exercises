@@ -1,6 +1,7 @@
 module MyParsers where
 
 import Control.Applicative
+import Data.Bool (bool)
 import Data.Char (digitToInt)
 import Data.Foldable
 import Data.Maybe (catMaybes, isJust)
@@ -110,7 +111,27 @@ parsePhoneDashOnly = do
   eof
   return $ PhoneNumber npa ex ln
 
+parsePhoneComplex :: Parser PhoneNumber
+parsePhoneComplex = do
+  mnpa <- optional $ between (char '(') (char ')') parseNPA
+  case mnpa of
+    Just npa -> do
+      _ <- char ' '
+      ex <- parseEx
+      _ <- oneOf "- "
+      ln <- parseLN
+      eof
+      return $ PhoneNumber npa ex ln
+    Nothing -> do
+      npa <- parseNPA
+      lastSeparator <- bool "- " "-" . (== '-') <$> oneOf "- "
+      ex <- parseEx
+      _ <- oneOf lastSeparator
+      ln <- parseLN
+      eof
+      return $ PhoneNumber npa ex ln
+
 parsePhone :: Parser PhoneNumber
 parsePhone = do
   useDash <- (== '-') . last <$> option " " (try parseTrunk)
-  if useDash then parsePhoneDashOnly else return $ PhoneNumber 123 456 7890
+  if useDash then parsePhoneDashOnly else parsePhoneComplex
