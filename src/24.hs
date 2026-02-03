@@ -3,7 +3,7 @@ module MyParsers where
 import Control.Applicative
 import Data.Char (digitToInt)
 import Data.Foldable
-import Data.Maybe (isJust)
+import Data.Maybe (catMaybes, isJust)
 import Text.Trifecta
 
 --------------------------------------------------------------------------------
@@ -71,3 +71,46 @@ base10Integer' = do
   sign <- optional $ char '-'
   int <- base10Integer
   return $ if isJust sign then negate int else int
+
+--------------------------------------------------------------------------------
+-- Phone Numbers
+--------------------------------------------------------------------------------
+
+type NumberingPlanArea = Int
+
+type Exchange = Int
+
+type LineNumber = Int
+
+data PhoneNumber = PhoneNumber NumberingPlanArea Exchange LineNumber deriving (Eq, Show)
+
+parseTrunk :: Parser String
+parseTrunk = do
+  plus <- optional $ char '+'
+  trunk <- digit
+  sep <- oneOf "- "
+  return $ catMaybes [plus, Just trunk, Just sep]
+
+parseNPA :: Parser NumberingPlanArea
+parseNPA = read <$> count 3 parseDigit
+
+parseEx :: Parser Exchange
+parseEx = read <$> count 3 parseDigit
+
+parseLN :: Parser LineNumber
+parseLN = read <$> count 4 parseDigit
+
+parsePhoneDashOnly :: Parser PhoneNumber
+parsePhoneDashOnly = do
+  npa <- parseNPA
+  _ <- char '-'
+  ex <- parseEx
+  _ <- char '-'
+  ln <- parseLN
+  eof
+  return $ PhoneNumber npa ex ln
+
+parsePhone :: Parser PhoneNumber
+parsePhone = do
+  useDash <- (== '-') . last <$> option " " (try parseTrunk)
+  if useDash then parsePhoneDashOnly else return $ PhoneNumber 123 456 7890
