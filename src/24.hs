@@ -1,10 +1,12 @@
 module MyParsers where
 
 import Control.Applicative
+import Control.Monad
 import Data.Bool (bool)
 import Data.Char (digitToInt)
 import Data.Foldable
 import Data.Maybe (catMaybes, isJust)
+import Data.Word (Word32)
 import Text.Trifecta
 
 --------------------------------------------------------------------------------
@@ -142,3 +144,19 @@ parsePhone :: Parser PhoneNumber
 parsePhone = do
   useDash <- (== '-') . last <$> option " " (try parseTrunk)
   if useDash then parsePhoneDashOnly else parsePhoneComplex
+
+--------------------------------------------------------------------------------
+-- IP Addresses
+--------------------------------------------------------------------------------
+
+newtype IPAddress = IPAddress Word32 deriving (Eq, Ord, Show)
+
+parseIPv4Segment :: Parser Word32
+parseIPv4Segment = integer >>= \i -> if 0 <= i && i < 256 then return $ fromInteger i else empty
+
+parseIPv4 :: Parser IPAddress
+parseIPv4 = do
+  segments <- sepBy parseIPv4Segment (char '.')
+  guard $ length segments == 4
+  let total = foldl' ((+) . (* 256)) 0 segments
+  return $ IPAddress total
