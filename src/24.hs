@@ -124,12 +124,19 @@ parsePhoneComplex = do
       return $ PhoneNumber npa ex ln
     Nothing -> do
       npa <- parseNPA
-      lastSeparator <- bool "- " "-" . (== '-') <$> oneOf "- "
-      ex <- parseEx
-      _ <- oneOf lastSeparator
-      ln <- parseLN
-      eof
-      return $ PhoneNumber npa ex ln
+      lastSeparator <- optional $ bool "- " "-" . (== '-') <$> oneOf "- "
+      case lastSeparator of
+        Nothing -> do
+          ex <- parseEx
+          ln <- parseLN
+          eof
+          return $ PhoneNumber npa ex ln
+        Just separators -> do
+          ex <- parseEx
+          _ <- oneOf separators
+          ln <- parseLN
+          eof
+          return $ PhoneNumber npa ex ln
 
 parsePhone :: Parser PhoneNumber
 parsePhone = do
