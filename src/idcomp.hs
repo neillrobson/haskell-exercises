@@ -28,7 +28,14 @@ instance (Applicative f, Applicative g) => Applicative (Compose f g) where
   pure = Compose . pure . pure
 
   (<*>) :: Compose f g (a -> b) -> Compose f g a -> Compose f g b
-  (Compose fgab) <*> (Compose fga) = Compose $ ((<*>) . fmap (<*>)) fgab fga
+  -- (Compose fgab) <*> (Compose fga) = Compose $ ((<*>) . fmap (<*>)) fgab fga
+  (Compose fgab) <*> (Compose fga) = Compose $ (<*>) <$> fgab <*> fga
+
+-- An English way to think about the Applicative instance for Compose:
+-- We need to get inside the "f" of fgab, to transform `g (a -> b)` to `g a -> g b`.
+-- "get inside" is <$>, and the transform is <*>.
+-- Once we have `f (g a -> g b)`, we can use <*> again on that and fga (that is, `f (g a)`)
+-- to get `f (g b)`.
 
 --------------------------------------------------------------------------------
 
