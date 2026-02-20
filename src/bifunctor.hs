@@ -23,4 +23,34 @@ instance Bifunctor Deux where
 newtype Const a b = Const a
 
 instance Bifunctor Const where
+  bimap :: (a -> b) -> (c -> d) -> Const a c -> Const b d
   bimap f _ (Const a) = Const $ f a
+
+data Drei a b c = Drei a b c
+
+instance Bifunctor (Drei a) where
+  bimap :: (a' -> b) -> (c -> d) -> Drei x a' c -> Drei x b d
+  bimap f g (Drei a b c) = Drei a (f b) (g c)
+
+data SuperDrei a b c = SuperDrei a b
+
+instance Bifunctor (SuperDrei a) where
+  bimap :: (a' -> b) -> (c -> d) -> SuperDrei x a' c -> SuperDrei x b d
+  bimap f _ (SuperDrei a b) = SuperDrei a $ f b
+
+newtype SemiDrei a b c = SemiDrei a
+
+instance Bifunctor (SemiDrei a) where
+  bimap :: (a' -> b) -> (c -> d) -> SemiDrei x a' c -> SemiDrei x b d
+  bimap _ _ (SemiDrei a) = SemiDrei a
+
+data Quadriceps a b c d = Quadzzz a b c d
+
+instance Bifunctor (Quadriceps a b) where
+  bimap :: (a' -> b') -> (c -> d) -> Quadriceps x y a' c -> Quadriceps x y b' d
+  bimap f g (Quadzzz a b c d) = Quadzzz a b (f c) (g d)
+
+instance Bifunctor Either where
+  bimap :: (a -> b) -> (c -> d) -> Either a c -> Either b d
+  bimap f _ (Left a) = Left $ f a
+  bimap _ g (Right b) = Right $ g b
