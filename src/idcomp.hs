@@ -33,7 +33,19 @@ instance (Applicative f, Applicative g) => Applicative (Compose f g) where
 --------------------------------------------------------------------------------
 
 instance Foldable Identity where
+  foldMap :: (Monoid m) => (a -> m) -> Identity a -> m
   foldMap f (Identity a) = f a
 
 instance (Foldable f, Foldable g) => Foldable (Compose f g) where
+  foldMap :: (Foldable f, Foldable g, Monoid m) => (a -> m) -> Compose f g a -> m
   foldMap f (Compose fga) = foldMap (foldMap f) fga
+
+--------------------------------------------------------------------------------
+
+instance Traversable Identity where
+  traverse :: (Applicative f) => (a -> f b) -> Identity a -> f (Identity b)
+  traverse f (Identity a) = Identity <$> f a
+
+instance (Traversable f, Traversable g) => Traversable (Compose f g) where
+  traverse :: (Traversable f, Traversable g, Applicative h) => (a -> h b) -> Compose f g a -> h (Compose f g b)
+  traverse f (Compose fga) = Compose <$> traverse (traverse f) fga
