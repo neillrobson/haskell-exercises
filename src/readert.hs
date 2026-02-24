@@ -20,4 +20,7 @@ instance (Monad m) => Monad (ReaderT r m) where
   (>>=) :: (Monad m) => ReaderT r m a -> (a -> ReaderT r m b) -> ReaderT r m b
   (ReaderT rma) >>= f = ReaderT $ do
     ma <- rma
-    undefined
+    r <- id
+    return $ do
+      a <- ma
+      (runReaderT . f) a r
