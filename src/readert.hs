@@ -18,9 +18,6 @@ instance (Monad m) => Monad (ReaderT r m) where
   return = pure
 
   (>>=) :: (Monad m) => ReaderT r m a -> (a -> ReaderT r m b) -> ReaderT r m b
-  (ReaderT rma) >>= f = ReaderT $ do
-    ma <- rma
-    r <- id
-    return $ do
-      a <- ma
-      (runReaderT . f) a r
+  (ReaderT rma) >>= f = ReaderT $ \r -> do
+    a <- rma r
+    runReaderT (f a) r
