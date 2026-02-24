@@ -1,4 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE TupleSections #-}
 
 newtype Moi s a = Moi {runMoi :: s -> (a, s)}
 
@@ -6,9 +7,12 @@ instance Functor (Moi s) where
   fmap :: (a -> b) -> Moi s a -> Moi s b
   fmap g (Moi m) = Moi $ \s -> let (a, s') = m s in (g a, s')
 
+-- Alternative with inner fmap:
+-- fmap g (Moi m) = Moi $ fmap (\(a, s) -> (g a, s)) m
+
 instance Applicative (Moi s) where
   pure :: a -> Moi s a
-  pure a = Moi $ \s -> (a, s)
+  pure a = Moi (a,)
 
   (<*>) :: Moi s (a -> b) -> Moi s a -> Moi s b
   (Moi mg) <*> (Moi ma) = Moi $ \s ->
@@ -17,6 +21,7 @@ instance Applicative (Moi s) where
      in (g a, s2)
 
 instance Monad (Moi s) where
+  return :: a -> Moi s a
   return = pure
 
   (>>=) :: Moi s a -> (a -> Moi s b) -> Moi s b
@@ -40,4 +45,4 @@ eval :: Moi s a -> s -> a
 eval (Moi sa) = fst . sa
 
 modify :: (s -> s) -> Moi s ()
-modify f = Moi $ ((,) ()) . f
+modify f = Moi $ (,) () . f
