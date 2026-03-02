@@ -1,5 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 
+module IdComp where
+
 newtype Identity a = Identity {runIdentity :: a} deriving (Eq, Show)
 
 newtype Compose f g a = Compose {getCompose :: f (g a)} deriving (Eq, Show)
