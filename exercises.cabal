@@ -17,6 +17,7 @@ library
     , QuickCheck
     , random
     , raw-strings-qq
+    , scotty
     , transformers
     , trifecta
 
