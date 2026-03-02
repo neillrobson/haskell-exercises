@@ -17,3 +17,12 @@ instance (Monad m) => Applicative (StateT s m) where
     (ab, s') <- smab s
     (a, s'') <- sma s'
     return (ab a, s'')
+
+instance (Monad m) => Monad (StateT s m) where
+  return :: (Monad m) => a -> StateT s m a
+  return = pure
+
+  (>>=) :: (Monad m) => StateT s m a -> (a -> StateT s m b) -> StateT s m b
+  (StateT sma) >>= f = StateT $ \s -> do
+    (a, s') <- sma s
+    (runStateT . f) a s'
