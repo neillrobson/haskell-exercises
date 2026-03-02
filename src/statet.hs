@@ -1,5 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
+import Control.Monad.Trans.Class
 import Data.Bifunctor (Bifunctor (first))
 
 newtype StateT s m a = StateT {runStateT :: s -> m (a, s)}
@@ -26,3 +27,10 @@ instance (Monad m) => Monad (StateT s m) where
   (StateT sma) >>= f = StateT $ \s -> do
     (a, s') <- sma s
     (runStateT . f) a s'
+
+instance MonadTrans (StateT s) where
+  lift :: (Monad m) => m a -> StateT s m a
+  lift =
+    StateT . \ma s -> do
+      a <- ma
+      return (a, s)
