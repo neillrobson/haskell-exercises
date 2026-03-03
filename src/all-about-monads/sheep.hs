@@ -24,3 +24,14 @@ mothersPaternalGrandfather s = do
   g <- mother s
   gf <- father g
   father gf
+
+--------------------------------------------------------------------------------
+
+mgf :: Sheep -> Maybe Sheep
+mgf s = mother s >>= father
+
+fmgm :: Sheep -> Maybe Sheep
+fmgm s = father s >>= mother >>= mother
+
+mpgf :: Sheep -> Maybe Sheep
+mpgf s = mother s >>= father >>= father
