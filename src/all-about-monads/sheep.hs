@@ -3,6 +3,7 @@
 module Sheep where
 
 import Control.Monad (mplus)
+import Data.Maybe (maybeToList)
 
 data Sheep = Sheep {name :: String, mother :: Maybe Sheep, father :: Maybe Sheep}
 
@@ -56,4 +57,12 @@ parent :: Sheep -> Maybe Sheep
 parent s = mother s `mplus` father s
 
 grandparent :: Sheep -> Maybe Sheep
-grandparent s = let p = parent s in (p >>= mother) `mplus` (p >>= father)
+grandparent s = parent s >>= parent
+
+--------------------------------------------------------------------------------
+
+parents :: Sheep -> [Sheep]
+parents s = (maybeToList . mother) s `mplus` (maybeToList . father) s
+
+grandparents :: Sheep -> [Sheep]
+grandparents s = parents s >>= parents
