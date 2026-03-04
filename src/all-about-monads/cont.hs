@@ -27,4 +27,7 @@ instance Monad (Cont r) where
 
   (>>=) :: Cont r a -> (a -> Cont r b) -> Cont r b
   (Cont ra) >>= f = Cont $ \ret ->
+    -- This is what you should do with "a":
+    -- generate a "Cont r b",
+    -- then tell it to use "ret" (b to r) in order to make r.
     ra $ \a -> runCont (f a) ret
