@@ -31,3 +31,15 @@ instance Monad (Cont r) where
     -- generate a "Cont r b",
     -- then tell it to use "ret" (b to r) in order to make r.
     ra $ \a -> runCont (f a) ret
+
+-- callCC takes a function that returns a Cont.
+-- However, that Cont is constructed with an "escape hatch":
+-- If the Cont (m b) is ever executed,
+-- which requires supplying an value of "a",
+-- the execution of the Cont returns early with that supplied value.
+class (Monad m) => MonadCont m where
+  callCC :: ((a -> m b) -> m a) -> m a
+
+instance MonadCont (Cont r) where
+  callCC :: ((a -> Cont r b) -> Cont r a) -> Cont r a
+  callCC f = Cont $ \ar -> runCont undefined ar
