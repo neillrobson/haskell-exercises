@@ -44,3 +44,24 @@ instance MonadCont (Cont r) where
   callCC :: ((a -> Cont r b) -> Cont r a) -> Cont r a
   callCC f = Cont $ \ar ->
     runCont (f $ \a -> Cont $ \_ -> ar a) ar
+
+quux :: Cont a Integer
+quux = callCC $ \k -> do
+  _ <- k 5
+  return 25
+
+quux1 :: Cont a Integer
+quux1 = Cont $ \ar ->
+  runCont ((\k -> do _ <- k 5; return 25) $ \a -> Cont $ \_ -> ar a) ar
+
+quux2 :: Cont a Integer
+quux2 = Cont $ \ar ->
+  runCont (do _ <- (\a -> Cont $ \_ -> ar a) 5; return 25) ar
+
+quux3 :: Cont a Integer
+quux3 = Cont $ \ar ->
+  runCont (do _ <- Cont $ \_ -> ar 5; return 25) ar
+
+quux4 :: Cont a Integer
+quux4 = Cont $ \ar ->
+  runCont (do _ <- Cont $ \_ -> ar 5; return 25) ar
