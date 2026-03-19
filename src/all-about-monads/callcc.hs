@@ -9,4 +9,6 @@ fun' escape = do
   return "die die die"
 
 main :: IO ()
-main = print $ runCont (callCC fun') id
+main = do
+  print $ runCont (callCC fun) id
+  print $ runCont (callCC fun') id
