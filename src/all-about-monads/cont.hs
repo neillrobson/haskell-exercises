@@ -14,7 +14,7 @@ instance Functor (Cont r) where
 
 instance Applicative (Cont r) where
   pure :: a -> Cont r a
-  pure a = Cont $ \ret -> ret a
+  pure a = Cont ($ a)
 
   (<*>) :: Cont r (a -> b) -> Cont r a -> Cont r b
   (Cont rab) <*> (Cont ra) = Cont $ \ret ->
@@ -42,4 +42,5 @@ class (Monad m) => MonadCont m where
 
 instance MonadCont (Cont r) where
   callCC :: ((a -> Cont r b) -> Cont r a) -> Cont r a
-  callCC f = Cont $ \ar -> runCont undefined ar
+  callCC f = Cont $ \ar ->
+    runCont (f $ \a -> Cont $ \_ -> ar a) ar
