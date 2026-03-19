@@ -45,6 +45,11 @@ instance MonadCont (Cont r) where
   callCC f = Cont $ \ar ->
     runCont (f $ \a -> Cont $ \_ -> ar a) ar
 
+--               |--   This is "k"   --|
+--                ^ when given "a", return a continuation that...
+--                             ^ ...ignores whatever else, not calling it,
+--                                  ^ and produces "r" from "a".
+
 quux :: Cont a Integer
 quux = callCC $ \k -> do
   _ <- k 5
@@ -64,4 +69,23 @@ quux3 = Cont $ \ar ->
 
 quux4 :: Cont a Integer
 quux4 = Cont $ \ar ->
-  runCont (do _ <- Cont $ \_ -> ar 5; return 25) ar
+  runCont (Cont (\_ -> ar 5) >> return 25) ar
+
+quux5 :: Cont a Integer
+quux5 = Cont $ \ar ->
+  runCont (Cont (\_ -> ar 5) >>= const (return 25)) ar
+
+quux6 :: Cont a Integer
+quux6 = Cont $ \ar ->
+  runCont (Cont $ \ret -> (\_ -> ar 5) $ \_ -> runCont (return 25) ret) ar
+
+quux7 :: Cont a Integer
+quux7 = Cont $ \ar ->
+  runCont (Cont $ \_ -> ar 5) ar
+
+quux8 :: Cont a Integer
+quux8 = Cont $ \ar ->
+  (\_ -> ar 5) ar
+
+quux9 :: Cont a Integer
+quux9 = Cont $ \ar -> ar 5
