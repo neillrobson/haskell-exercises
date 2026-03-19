@@ -1,5 +1,8 @@
 {-# LANGUAGE InstanceSigs #-}
 
+import Control.Monad (when)
+import Data.Char (digitToInt, intToDigit)
+
 -- (a -> r) is the "callback" that receives the in-process return value
 -- r is the final result type of the whole computation
 newtype Cont r a = Cont {runCont :: (a -> r) -> r}
@@ -89,3 +92,21 @@ quux8 = Cont $ \ar ->
 
 quux9 :: Cont a Integer
 quux9 = Cont $ \ar -> ar 5
+
+--------------------------------------------------------------------------------
+
+fun :: Int -> String
+fun n = (`runCont` id) $ do
+  str <- callCC $ \exit1 -> do
+    when (n < 10) (exit1 $ show n)
+    let ns = map digitToInt (show $ n `div` 2)
+    n' <- callCC $ \exit2 -> do
+      let len = length ns
+      when (len < 3) (exit2 len)
+      when (len < 5) (exit2 n)
+      when (len < 7) $ do
+        let ns' = map intToDigit $ reverse ns
+        exit1 $ dropWhile (== '0') ns'
+      return $ sum ns
+    return $ "(ns = " ++ show ns ++ ") " ++ show n'
+  return $ "Answer: " ++ str
