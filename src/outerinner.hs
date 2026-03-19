@@ -18,7 +18,7 @@ readerUnwrap = runReaderT eitherUnwrap
 
 -- Another way to write the above
 raw :: b -> IO (Either a (Maybe Int))
-raw = const $ return $ Right $ Just 1
+raw = return <$> const (Right $ Just 1)
 
 -- And back again!
 reEmbedded :: MaybeT (ExceptT String (ReaderT () IO)) Int
