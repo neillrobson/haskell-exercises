@@ -2,6 +2,7 @@
 
 module HitCounter where
 
+import Control.Monad.IO.Class
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Reader
 import Data.IORef
@@ -33,7 +34,8 @@ app =
     unprefixed <- (captureParam "key" :: HitCounter.Handler Text)
     conf <- lift ask
     let key' = mappend (prefix conf) unprefixed
-    newInteger <- (undefined :: HitCounter.Handler Integer)
+    let counts' = counts conf
+    newInteger <- (liftIO $ atomicModifyIORef counts' (bumpBoomp key') :: HitCounter.Handler Integer)
     html $
       mconcat ["<h1>Success! Count was: ", TL.pack $ show newInteger, "</h1>"]
 
