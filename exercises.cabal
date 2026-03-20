@@ -13,11 +13,13 @@ library
   build-depends:
       base        >=4.7 && <5
     , checkers
+    , containers
     , hspec
     , QuickCheck
     , random
     , raw-strings-qq
     , scotty
+    , text
     , transformers
     , trifecta
 
