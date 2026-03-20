@@ -2,6 +2,7 @@
 
 module MaybeT where
 
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Trans.Class (MonadTrans (..))
 
 newtype MaybeT m a = MaybeT {runMaybeT :: m (Maybe a)}
@@ -31,3 +32,7 @@ instance (Monad m) => Monad (MaybeT m) where
 instance MonadTrans MaybeT where
   lift :: (Monad m) => m a -> MaybeT m a
   lift = MaybeT . fmap Just
+
+instance (MonadIO m) => MonadIO (MaybeT m) where
+  liftIO :: (MonadIO m) => IO a -> MaybeT m a
+  liftIO = lift . liftIO

@@ -1,5 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Trans.Class
 
 newtype EitherT e m a = EitherT {runEitherT :: m (Either e a)}
@@ -43,3 +44,7 @@ eitherT f g (EitherT mab) = do
   case ab of
     Left a -> f a
     Right b -> g b
+
+instance (MonadIO m) => MonadIO (EitherT e m) where
+  liftIO :: (MonadIO m) => IO a -> EitherT e m a
+  liftIO = lift . liftIO

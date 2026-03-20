@@ -1,5 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
+import Control.Monad.IO.Class
 import Control.Monad.Trans.Class
 import Data.Bifunctor (Bifunctor (first))
 
@@ -34,3 +35,7 @@ instance MonadTrans (StateT s) where
     StateT . \ma s -> do
       a <- ma
       return (a, s)
+
+instance (MonadIO m) => MonadIO (StateT s m) where
+  liftIO :: (MonadIO m) => IO a -> StateT s m a
+  liftIO = lift . liftIO
