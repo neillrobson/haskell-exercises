@@ -1,5 +1,6 @@
 module TwentySix where
 
+import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Maybe (MaybeT (runMaybeT))
 import Control.Monad.Trans.Reader (Reader, ReaderT (ReaderT, runReaderT), ask, reader, runReader)
@@ -41,3 +42,26 @@ sPrintIncAccum = do
   lift $ putStrLn $ "Hi: " ++ show x
   put $ x + 1
   return $ show x
+
+--------------------------------------------------------------------------------
+
+isValid :: String -> Bool
+isValid v = '!' `elem` v
+
+maybeExcite :: MaybeT IO String
+maybeExcite = do
+  -- Need lift!
+  v <- lift getLine
+  guard $ isValid v
+  return v
+
+doExcite :: IO ()
+doExcite = do
+  putStrLn "say something excite!"
+  -- Need runMaybeT!
+  excite <- runMaybeT maybeExcite
+
+  case excite of
+    Nothing -> putStrLn "MOAR EXCITE"
+    Just e ->
+      putStrLn $ "Good, was very excite: " ++ e
