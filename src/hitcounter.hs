@@ -43,6 +43,6 @@ main :: IO ()
 main = do
   [prefixArg] <- getArgs
   counter <- newIORef M.empty
-  let config = undefined
-      runR = undefined
+  let config = Config counter (TL.pack prefixArg)
+      runR m = runReaderT m config
   scottyT 3000 runR app
