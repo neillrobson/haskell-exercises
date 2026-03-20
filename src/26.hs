@@ -1,7 +1,9 @@
 module TwentySix where
 
+import Control.Monad.Trans.Class
 import Control.Monad.Trans.Maybe (MaybeT (runMaybeT))
-import Control.Monad.Trans.Reader (Reader, ReaderT (ReaderT, runReaderT), reader, runReader)
+import Control.Monad.Trans.Reader (Reader, ReaderT (ReaderT, runReaderT), ask, reader, runReader)
+import Control.Monad.Trans.State (StateT, get, put)
 import Data.Functor.Identity (Identity (Identity))
 
 rtm :: ReaderT r Maybe Integer
@@ -28,6 +30,14 @@ rShow :: (Show a) => ReaderT a Identity String
 rShow = ReaderT $ Identity . show
 
 rPrintAndInc :: (Num a, Show a) => ReaderT a IO a
-rPrintAndInc = ReaderT $ \x -> do
-  putStrLn $ "Hi: " ++ show x
+rPrintAndInc = do
+  x <- ask
+  lift $ putStrLn $ "Hi: " ++ show x
   return $ x + 1
+
+sPrintIncAccum :: (Num a, Show a) => StateT a IO String
+sPrintIncAccum = do
+  x <- get
+  lift $ putStrLn $ "Hi: " ++ show x
+  put $ x + 1
+  return $ show x
