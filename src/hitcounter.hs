@@ -2,9 +2,11 @@
 
 module HitCounter where
 
+import Control.Monad.Trans.Class
 import Control.Monad.Trans.Reader
 import Data.IORef
 import qualified Data.Map as M
+import Data.Maybe (fromMaybe)
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as TL
 import System.Environment (getArgs)
@@ -21,13 +23,16 @@ type Scotty = ScottyT (ReaderT Config IO)
 type Handler = ActionT (ReaderT Config IO)
 
 bumpBoomp :: Text -> M.Map Text Integer -> (M.Map Text Integer, Integer)
-bumpBoomp k m = undefined
+bumpBoomp k m = (M.insert k count m, count)
+  where
+    count = (1 +) $ fromMaybe 0 $ M.lookup k m
 
 app :: Scotty ()
 app =
   get "/:key" $ do
-    unprefixed <- (captureParam "key" :: HitCounter.Handler String)
-    let key' = mappend undefined unprefixed
+    unprefixed <- (captureParam "key" :: HitCounter.Handler Text)
+    conf <- lift ask
+    let key' = mappend (prefix conf) unprefixed
     newInteger <- (undefined :: HitCounter.Handler Integer)
     html $
       mconcat ["<h1>Success! Count was: ", TL.pack $ show newInteger, "</h1>"]
