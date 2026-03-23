@@ -1,7 +1,8 @@
 module Morra where
 
 import Control.Monad.Trans.Class
-import Control.Monad.Trans.State (StateT (runStateT))
+import Control.Monad.Trans.State
+import System.Random (randomRIO)
 
 data GameState = GameState
   { pScore :: Integer,
@@ -11,20 +12,25 @@ data GameState = GameState
 
 type Game = StateT GameState IO
 
-app :: Game ()
-app = do
-  lift $ putStrLn "-- P is Player"
-  lift $ putStrLn "-- C is Computer"
-  lift $ putStrLn "-- Player is odds, Computer is evens."
+doRound :: Game ()
+doRound = do
   lift $ putStr "P: "
-  p <- lift getChar
-  case p of
-    x | x `elem` ['1', '2'] -> lift $ putStrLn "Valid"
-    _ -> lift $ putStrLn "Invalid"
+  input <- lift getLine
+  -- TODO: Input sanitization
+  let p = if input == "1" then (1 :: Integer) else 2
+  c <- lift $ randomRIO (1, 2)
+  lift $ putStrLn $ "C: " ++ show c
+  st <- get
+  if even (p + c)
+    then put $ GameState (pScore st) (1 + cScore st)
+    else put $ GameState (1 + pScore st) (cScore st)
 
 main :: IO ()
 main = do
+  putStrLn "-- P is Player"
+  putStrLn "-- C is Computer"
+  putStrLn "-- Player is odds, Computer is evens."
   let config = GameState 0 0
-  (unit, state) <- runStateT app config
+  (unit, st) <- runStateT doRound config
   putStrLn $ "unit: " ++ show unit
-  putStrLn $ "state: " ++ show state
+  putStrLn $ "state: " ++ show st
