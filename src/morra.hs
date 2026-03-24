@@ -1,5 +1,6 @@
 module Morra where
 
+import Control.Monad (forever)
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.State
 import System.Random (randomRIO)
@@ -24,6 +25,12 @@ doRound = do
   if even (p + c)
     then put $ GameState (pScore st) (1 + cScore st)
     else put $ GameState (1 + pScore st) (cScore st)
+  printScore
+
+printScore :: Game ()
+printScore = do
+  st <- get
+  lift $ putStrLn $ mconcat ["Player: ", show $ pScore st, " | Computer: ", show $ cScore st]
 
 main :: IO ()
 main = do
@@ -31,6 +38,4 @@ main = do
   putStrLn "-- C is Computer"
   putStrLn "-- Player is odds, Computer is evens."
   let config = GameState 0 0
-  (unit, st) <- runStateT doRound config
-  putStrLn $ "unit: " ++ show unit
-  putStrLn $ "state: " ++ show st
+  evalStateT (forever doRound) config
