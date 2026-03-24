@@ -19,8 +19,11 @@ doRound :: Game ()
 doRound = do
   liftIO $ putStr "P: "
   input <- liftIO getLine
-  -- TODO: Input sanitization
-  let p = if input == "1" then (1 :: Integer) else 2
+  p <- do
+    case input of
+      "1" -> return (1 :: Integer)
+      "2" -> return 2
+      _ -> mzero
   c <- lift $ randomRIO (1, 2)
   liftIO $ putStrLn $ "C: " ++ show c
   st <- lift get
