@@ -23,14 +23,18 @@ doRound = do
   lift $ putStrLn $ "C: " ++ show c
   st <- get
   if even (p + c)
-    then put $ GameState (pScore st) (1 + cScore st)
-    else put $ GameState (1 + pScore st) (cScore st)
+    then do
+      lift $ putStrLn "- C wins"
+      put $ GameState (pScore st) (1 + cScore st)
+    else do
+      lift $ putStrLn "- P wins"
+      put $ GameState (1 + pScore st) (cScore st)
   printScore
 
 printScore :: Game ()
 printScore = do
   st <- get
-  lift $ putStrLn $ mconcat ["Player: ", show $ pScore st, " | Computer: ", show $ cScore st]
+  lift $ putStrLn $ mconcat ["- Player: ", show $ pScore st, " | Computer: ", show $ cScore st]
 
 main :: IO ()
 main = do
