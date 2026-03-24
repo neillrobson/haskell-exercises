@@ -34,12 +34,6 @@ doRound = do
     else do
       liftIO $ putStrLn "- P wins"
       lift . put $ GameState (1 + pScore st) (cScore st)
-  printScore
-
-printScore :: Game ()
-printScore = do
-  st <- lift get
-  liftIO $ putStrLn $ mconcat ["- Player: ", show $ pScore st, " | Computer: ", show $ cScore st]
 
 start :: Game ()
 start = forever doRound
@@ -49,6 +43,15 @@ main = do
   putStrLn "-- P is Player"
   putStrLn "-- C is Computer"
   putStrLn "-- Player is odds, Computer is evens."
+  putStrLn "-- (any invalid input immediately ends the game.)"
   let config = GameState 0 0
-  result <- evalStateT (runMaybeT start) config
-  print result
+  result <- execStateT (runMaybeT start) config
+  let p = pScore result
+      c = cScore result
+  putStrLn $ mconcat ["- Player: ", show p, " | Computer: ", show c]
+  if p == c
+    then putStrLn "Tied game!"
+    else
+      if p < c
+        then putStrLn "Computer wins!"
+        else putStrLn "Player wins!"
