@@ -1,3 +1,5 @@
+{-# LANGUAGE ViewPatterns #-}
+
 module Morra where
 
 import Control.Monad
@@ -26,14 +28,13 @@ doRound = do
       _ -> mzero
   c <- lift $ randomRIO (1, 2)
   liftIO $ putStrLn $ "C: " ++ show c
-  st <- lift get
   if even (p + c)
     then do
       liftIO $ putStrLn "- C wins"
-      lift . put $ GameState (pScore st) (1 + cScore st)
+      lift . modify $ \s@(cScore -> cs) -> s {cScore = succ cs}
     else do
       liftIO $ putStrLn "- P wins"
-      lift . put $ GameState (1 + pScore st) (cScore st)
+      lift . modify $ \s@(pScore -> ps) -> s {pScore = succ ps}
 
 start :: Game ()
 start = forever doRound
