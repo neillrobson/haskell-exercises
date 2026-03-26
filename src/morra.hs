@@ -8,6 +8,7 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.State
 import qualified Data.Map as M
+import System.IO
 import System.Random (randomRIO)
 
 -- Keys are tuples of (two moves ago, one move ago)
@@ -48,13 +49,8 @@ getComputerMove = do
 
 doRound :: Game ()
 doRound = do
-  liftIO $ putStr "P: "
-  input <- liftIO getLine
-  p <- do
-    case input of
-      "1" -> return (1 :: Integer)
-      "2" -> return 2
-      _ -> mzero
+  p <- liftIO getUserMove
+  guard $ p /= 0
   c <- getComputerMove
   liftIO $ putStrLn $ "C: " ++ show c
   if even (p + c)
@@ -66,19 +62,35 @@ doRound = do
       lift . modify $ \s@(pScore -> ps) -> s {pScore = succ ps}
   updateHistory p
 
+getUserMove :: IO Integer
+getUserMove = do
+  putStr "P: "
+  done <- isEOF
+  if done
+    then return 0
+    else do
+      x <- getLine
+      case x of
+        "1" -> return 1
+        "2" -> return 2
+        _ -> putStrLn "Please input 1 or 2" >> getUserMove
+
 start :: Game ()
 start = forever doRound
+
+-- NOTE: when running in GHCi, you must first run `hSetBuffering stdin LineBuffering`
+-- for the EOF character to be recognized.
 
 main :: IO ()
 main = do
   putStrLn "-- P is Player"
   putStrLn "-- C is Computer"
   putStrLn "-- Player is odds, Computer is evens."
-  putStrLn "-- (any invalid input immediately ends the game.)"
   let config = GameState 0 0 M.empty (0, 0, 0)
   result <- execStateT (runMaybeT start) config
   let p = pScore result
       c = cScore result
+  putStrLn ""
   putStrLn $ mconcat ["- Player: ", show p, " | Computer: ", show c]
   if p == c
     then putStrLn "Tied game!"
