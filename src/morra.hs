@@ -35,10 +35,6 @@ updateHistory p = do
   if b == 0
     then return ()
     else lift . modify $ \s -> s {history = M.insert (b, a) p hist}
-  _ <- liftIO $ print ms'
-  (history -> hist') <- lift get
-  _ <- liftIO $ print hist'
-  return ()
 
 getComputerMove :: Game Integer
 getComputerMove = do
