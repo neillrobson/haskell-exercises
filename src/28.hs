@@ -1,5 +1,3 @@
-{-# LANGUAGE ViewPatterns #-}
-
 module TwentyEight where
 
 import Criterion.Main (bench, defaultMain, whnf)
@@ -15,7 +13,7 @@ singleton x = DL (x :)
 {-# INLINE singleton #-}
 
 toList :: DList a -> [a]
-toList (unDL -> f) = f []
+toList (DL f) = f []
 {-# INLINE toList #-}
 
 infixr 9 `cons`
@@ -31,7 +29,7 @@ snoc xs x = DL $ unDL xs . (x :)
 {-# INLINE snoc #-}
 
 append :: DList a -> DList a -> DList a
-append (unDL -> f) (unDL -> g) = DL $ f . g
+append (DL f) (DL g) = DL $ f . g
 {-# INLINE append #-}
 
 schlemiel :: Int -> [Int]
@@ -51,3 +49,21 @@ benchmark :: IO ()
 benchmark =
   defaultMain
     [bench "concat list" $ whnf schlemiel 123456, bench "concat dlist" $ whnf constructDlist 123456]
+
+--------------------------------------------------------------------------------
+
+-- Goal: dequeue is only ever empty if enqueue is also empty.
+
+data Queue a = Queue {enqueue :: [a], dequeue :: [a]} deriving (Eq, Show)
+
+emptyQ :: Queue a
+emptyQ = Queue [] []
+
+push :: a -> Queue a -> Queue a
+push x (Queue _ []) = Queue [] [x]
+push x (Queue e d) = Queue (x : e) d
+
+pop :: Queue a -> Maybe (a, Queue a)
+pop (Queue _ []) = Nothing
+pop (Queue e [x]) = Just (x, Queue [] (reverse e))
+pop (Queue e (x : d)) = Just (x, Queue e d)
