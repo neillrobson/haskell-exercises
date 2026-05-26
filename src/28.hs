@@ -2,6 +2,8 @@
 
 module TwentyEight where
 
+import Criterion.Main (bench, defaultMain, whnf)
+
 newtype DList a = DL {unDL :: [a] -> [a]}
 
 empty :: DList a
@@ -31,3 +33,21 @@ snoc xs x = DL $ unDL xs . (x :)
 append :: DList a -> DList a -> DList a
 append (unDL -> f) (unDL -> g) = DL $ f . g
 {-# INLINE append #-}
+
+schlemiel :: Int -> [Int]
+schlemiel i = go i []
+  where
+    go 0 xs = xs
+    -- Inefficient implementation for demonstration purposes
+    go n xs = go (n - 1) (xs ++ [n])
+
+constructDlist :: Int -> [Int]
+constructDlist i = toList $ go i empty
+  where
+    go 0 xs = xs
+    go n xs = go (n - 1) (xs `snoc` n)
+
+benchmark :: IO ()
+benchmark =
+  defaultMain
+    [bench "concat list" $ whnf schlemiel 123456, bench "concat dlist" $ whnf constructDlist 123456]
