@@ -1,0 +1,36 @@
+name: haskell-exercises
+version: 0.1.0.0
+github: neillrobson/haskell-exercises
+author: Neill Robson
+maintainer: neill@neillrobson.com
+license: MIT
+copyright: 2025 - Present
+extra-source-files: README.md
+
+description: Please see the README on GitHub at
+  <https://github.com/neillrobson/haskell-exercises#readme>
+
+spec-version: 0.38.1
+
+dependencies:
+  - base >=4.7 && <5
+  - checkers
+  - containers
+  - criterion
+  - hspec
+  - QuickCheck
+  - random
+  - raw-strings-qq
+  - scotty
+  - text
+  - transformers
+  - trifecta
+
+ghc-options:
+  - -Wall
+
+default-extensions:
+  - DataKinds
+
+library:
+  source-dirs: src

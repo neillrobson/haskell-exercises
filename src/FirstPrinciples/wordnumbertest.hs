@@ -1,7 +1,7 @@
-module WordNumberTest where
+module FirstPrinciples.WordNumberTest where
 
+import FirstPrinciples.WordNumber (digitToWord, digits, wordNumber)
 import Test.Hspec
-import WordNumber (digitToWord, digits, wordNumber)
 
 main :: IO ()
 main = hspec $ do

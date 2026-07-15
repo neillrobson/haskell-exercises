@@ -1,4 +1,4 @@
-module WordNumber where
+module FirstPrinciples.WordNumber where
 
 import Data.List (intercalate)
 

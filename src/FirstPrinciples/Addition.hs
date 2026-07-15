@@ -1,4 +1,4 @@
-module Addition where
+module FirstPrinciples.Addition where
 
 import Test.Hspec
 import Test.QuickCheck
