@@ -9,7 +9,7 @@ breadthFirst (RoseTree a trees) = a : go trees
     go subtrees =
       let (vals, subs) = foldr accumRoseTree ([], []) subtrees
        in vals <> go subs
-    accumRoseTree (RoseTree v t) (vs, ts) = (v : vs, t <> ts)
+    accumRoseTree ~(RoseTree v t) (vs, ts) = (v : vs, t <> ts)
 
 main :: IO ()
 main =
@@ -31,3 +31,7 @@ main =
               error "boom"
             ]
         ]
+
+-- badPatternMatch :: Maybe String -> String
+-- badPatternMatch ~(Just message) = message
+-- badPatternMatch Nothing = "Nothing to see here"
