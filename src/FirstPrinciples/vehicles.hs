@@ -10,12 +10,16 @@ data Airline = PapuAir | CatapultsR'Us | TakeYourChancesUnited deriving (Eq, Sho
 
 data Vehicle = Car Manufacturer Price | Plane Airline Integer deriving (Eq, Show)
 
+myCar :: Vehicle
 myCar = Car Mini (Price 14000)
 
+urCar :: Vehicle
 urCar = Car Mazda (Price 20000)
 
+clownCar :: Vehicle
 clownCar = Car Tata (Price 7000)
 
+doge :: Vehicle
 doge = Plane PapuAir 747
 
 isCar :: Vehicle -> Bool
