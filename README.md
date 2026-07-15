@@ -1,6 +1,12 @@
 # Haskell Exercises
 
-> Neill's experiments and solutions to the exercises in the Haskell Programming from First Principles book.
+> Neill's experiments and solutions to the exercises in various Haskell books and articles.
+
+## Sources
+
+* [All About Monads](https://wiki.haskell.org/All_About_Monads)
+* [Haskell Programming from First Principles](https://haskellbook.com/)
+* [Haskell Brain Teasers](https://pragprog.com/titles/haskellbt/haskell-brain-teasers/)
 
 ## Notes
 
