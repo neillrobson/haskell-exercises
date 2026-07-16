@@ -34,3 +34,10 @@ default-extensions:
 
 library:
   source-dirs: src
+
+executables:
+  unsafe:
+    source-dirs: src
+    main: HaskellBrainTeasers.UnsafeToTheMax
+    ghc-options:
+      - -O2
