@@ -27,6 +27,7 @@ library
       FirstPrinciples.Addition
       HaskellBrainTeasers.FirstFourDigitPrime
       HaskellBrainTeasers.FriendOfAlice
+      HaskellBrainTeasers.PointlesslyFixed
       HaskellBrainTeasers.SayCheese
       HaskellBrainTeasers.VeryFullStack
   hs-source-dirs:
