@@ -26,6 +26,7 @@ library
   exposed-modules:
       FirstPrinciples.Addition
       HaskellBrainTeasers.FirstFourDigitPrime
+      HaskellBrainTeasers.SayCheese
       HaskellBrainTeasers.VeryFullStack
   hs-source-dirs:
       src
