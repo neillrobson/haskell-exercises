@@ -27,9 +27,9 @@ library
       FirstPrinciples.Addition
       HaskellBrainTeasers.FirstFourDigitPrime
       HaskellBrainTeasers.FriendOfAlice
+      HaskellBrainTeasers.OhEmDash
       HaskellBrainTeasers.PointlesslyFixed
       HaskellBrainTeasers.SayCheese
-      HaskellBrainTeasers.UnsafeToTheMax
       HaskellBrainTeasers.VeryFullStack
   hs-source-dirs:
       src
@@ -57,6 +57,7 @@ executable unsafe
       FirstPrinciples.Addition
       HaskellBrainTeasers.FirstFourDigitPrime
       HaskellBrainTeasers.FriendOfAlice
+      HaskellBrainTeasers.OhEmDash
       HaskellBrainTeasers.PointlesslyFixed
       HaskellBrainTeasers.SayCheese
       HaskellBrainTeasers.VeryFullStack
