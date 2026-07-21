@@ -28,6 +28,7 @@ library
       HaskellBrainTeasers.FirstFourDigitPrime
       HaskellBrainTeasers.FriendOfAlice
       HaskellBrainTeasers.OhEmDash
+      HaskellBrainTeasers.PlayingWithMatches
       HaskellBrainTeasers.PointlesslyFixed
       HaskellBrainTeasers.SayCheese
       HaskellBrainTeasers.VeryFullStack
@@ -58,6 +59,7 @@ executable unsafe
       HaskellBrainTeasers.FirstFourDigitPrime
       HaskellBrainTeasers.FriendOfAlice
       HaskellBrainTeasers.OhEmDash
+      HaskellBrainTeasers.PlayingWithMatches
       HaskellBrainTeasers.PointlesslyFixed
       HaskellBrainTeasers.SayCheese
       HaskellBrainTeasers.VeryFullStack

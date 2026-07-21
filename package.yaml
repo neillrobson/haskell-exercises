@@ -10,7 +10,7 @@ extra-source-files: README.md
 description: Please see the README on GitHub at
   <https://github.com/neillrobson/haskell-exercises#readme>
 
-spec-version: 0.38.1
+spec-version: 0.39.1
 
 dependencies:
   - base >=4.7 && <5
