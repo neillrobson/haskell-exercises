@@ -53,6 +53,14 @@ instance MonadCont (Cont r) where
 --                             ^ ...ignores whatever else, not calling it,
 --                                  ^ and produces "r" from "a".
 
+-- Think about the lambda (\_ -> ar a).
+-- That lambda is called, in the Monad definition, with the parameter
+-- (\a -> runCont (f a) ret).
+-- Since the parameter is `_`, it will never be called: nothing within is evaluated.
+-- And recall that `f` is the entire right side of the bind.
+-- Hence, the entire right side of the bind is never evaluated, if the "escape hatch"
+-- is called.
+
 quux :: Cont a Integer
 quux = callCC $ \k -> do
   _ <- k 5
